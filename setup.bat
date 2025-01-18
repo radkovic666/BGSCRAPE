@@ -73,8 +73,7 @@ powershell -Command ^
 echo Shortcut to TVWoodpecker.bat added to startup successfully.
 echo Installation of BGSCRAPE successful.
 
-REM Delete the setup.bat and exiter.zip files
-del "%SCRIPT_DIR%setup.bat"
-del "%SCRIPT_DIR%exiter.zip"
+::del "%SCRIPT_DIR%setup.bat"
+::del "%SCRIPT_DIR%exiter.zip"
 
 pause
