@@ -180,4 +180,11 @@ while True:
     log_and_print("Running ftp.py...")
     subprocess.run(['python', ftp_script_path])
 
+    # Close and flush handlers, for scrapelog.txt to be unused prior deletion.
+    for handler in logger.handlers:
+        handler.close()
+    logger.handlers[0].flush()
+
+    subprocess.run(['python', "sanitizer.py"])   # Apply sanitizer 
+
     time.sleep(remaining_time)
