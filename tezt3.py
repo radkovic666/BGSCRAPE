@@ -63,6 +63,21 @@ def append_additional_urls(file_path):
             f.write(url + '\n')
 
 while True:
+    # Ensure a fresh log file for each scraping cycle
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s [%(levelname)s]: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        filename=log_file_path,
+        filemode='w'  # Overwrite the log file
+    )
+    
+    # Re-add the file handler to ensure the log file is opened correctly
+    logger.handlers = []  # Remove existing handlers to avoid duplication
+    file_handler = logging.FileHandler(log_file_path, mode='w')
+    file_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+    logger.addHandler(file_handler)
+    
     clear_screen()
     start_time = time.time()
 
@@ -170,13 +185,11 @@ while True:
     next_scrape_time = datetime.now() + timedelta(seconds=remaining_time)
     next_scrape_time_formatted = next_scrape_time.strftime("%H:%M:%S")
 
- 
     clear_screen()  # Move this to the end, after printing/logging
 
     log_and_print(f"Scraping finished in {int(elapsed_minutes)} minutes and {int(elapsed_seconds)} seconds.")
     log_and_print(f"Next scraping cycle will start at {next_scrape_time_formatted}.")
 
-    
     log_and_print("Running ftp.py...")
     subprocess.run(['python', ftp_script_path])
 
