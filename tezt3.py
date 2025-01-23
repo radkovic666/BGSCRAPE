@@ -52,11 +52,19 @@ def minimize_window():
 # Function to append additional URLs to the temp file
 def append_additional_urls(file_path):
     additional_urls = [
+        "https://streamer103.neterra.tv/tiankov-folk/live.m3u8", #TiankovFolk
+        #"https://streamer103.neterra.tv/tiankov-orient/live.m3u8", #TiankovOrient
         "https://bss1.neterra.tv/magictv/stream_0.m3u8",
         "https://bss1.neterra.tv/thevoice/stream_0.m3u8",
         "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream04/streamPlaylist.m3u8",
         "https://live.ecomservice.bg/hls/stream.m3u8",
-        "https://streamer103.neterra.tv/travel/live.m3u8"
+        "https://streamer103.neterra.tv/travel/live.m3u8",
+        "https://streamer103.neterra.tv/thisisbulgaria/live.m3u8", #ThisIsBulgaria
+        "http://100automoto.tv:1935/bgtv1/autotv/playlist.m3u8", #100 Auto Moto
+        #"https://old.rn-tv.com/k0/stream.m3u8", #Kanal0
+        "http://zagoratv.ddns.net:8080/tvzagora.m3u8", #TV Zagora
+
+      
     ]
     with open(file_path, 'a') as f:
         for url in additional_urls:
@@ -85,7 +93,7 @@ while True:
 
     urls = [
         "https://www.gledaitv.live/watch-tv/64/bnt-1-online",
-        "https://www.gledaitv.live/watch-tv/63/bnt-2-online",
+        #"https://www.gledaitv.live/watch-tv/63/bnt-2-online",
         "https://www.gledaitv.live/watch-tv/62/bnt-3-online",
         "https://www.gledaitv.live/watch-tv/42/bnt-4-online",
         "https://www.gledaitv.live/watch-tv/61/btv-online",
@@ -187,9 +195,10 @@ while True:
 
     clear_screen()  # Move this to the end, after printing/logging
 
+    log_and_print("")
     log_and_print(f"Scraping finished in {int(elapsed_minutes)} minutes and {int(elapsed_seconds)} seconds.")
     log_and_print(f"Next scraping cycle will start at {next_scrape_time_formatted}.")
-
+    log_and_print("")
     log_and_print("Running ftp.py...")
     subprocess.run(['python', ftp_script_path])
 
