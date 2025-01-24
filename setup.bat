@@ -71,9 +71,19 @@ powershell -Command ^
     $Shortcut.Save()
 
 echo Shortcut to TVWoodpecker.bat added to startup successfully.
+
+REM Schedule daily restart at midnight
+echo Scheduling daily restart at midnight...
+powershell -Command ^
+    $action = New-ScheduledTaskAction -Execute 'shutdown.exe' -Argument '/r /f /t 0'; ^
+    $trigger = New-ScheduledTaskTrigger -Daily -At '00:00AM'; ^
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries; ^
+    Register-ScheduledTask -TaskName 'DailyRestart' -Action $action -Trigger $trigger -Settings $settings -Description 'Restart the computer daily at midnight';
+echo Daily restart scheduled successfully.
+
 echo Installation of BGSCRAPE successful.
 
 ::del "%SCRIPT_DIR%setup.bat"
-::del "%SCRIPT_DIR%exiter.zip"
+del "%SCRIPT_DIR%exiter.zip"
 
 pause
