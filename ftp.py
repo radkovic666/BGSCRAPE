@@ -39,9 +39,8 @@ def upload_file(file_path):
     if response.status_code in [200, 201]:
         print(f"Successfully delivered {file_name}")
     else:
-        print(f"Poor Peyo FAILED to deliver {file_name}: {response.json()}")
+        print(f"Failed to deliver {file_name}: {response.json()}")
 
 # Upload all files
 for file in FILES:
     upload_file(file)
-
