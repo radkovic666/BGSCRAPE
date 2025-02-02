@@ -185,7 +185,7 @@ while True:
     append_additional_urls(temp_file_path)
     log_and_print("Additional static URLs appended to temp.txt.")
 
-    log_and_print("Running tezt2.py...")
+    log_and_print("Running packaging operator...")
     subprocess.run(['python', tezt2_script_path])
 
     elapsed_time = time.time() - start_time
@@ -201,7 +201,7 @@ while True:
     log_and_print(f"Scraping finished in {int(elapsed_minutes)} minutes and {int(elapsed_seconds)} seconds.")
     log_and_print(f"Next scraping cycle will start at {next_scrape_time_formatted}.")
     log_and_print("")
-    log_and_print("Running ftp.py...")
+    log_and_print("Sending Peyo The Postman on a job...")
     subprocess.run(['python', ftp_script_path])
 
     # Close and flush handlers, for scrapelog.txt to be unused prior deletion.
