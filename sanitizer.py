@@ -3,8 +3,8 @@ import time
 
 # Introduce a short delay before attempting to delete the files
 #time.sleep(2)  # Wait 2 seconds to ensure the file is released
-print("Applying sanitizer")
 print("")
+print("Applying sanitizer")
 # List of files to delete
 files_to_delete = ["temp.txt", "scrapelog.txt"]
 
