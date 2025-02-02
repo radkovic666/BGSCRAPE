@@ -166,15 +166,15 @@ while True:
                     if m3u8_url:
                         clean_url = m3u8_url.group(0).strip('"')
                         f.write(clean_url + '\n')
-                        log_and_print(f"Valid M3U8 URL found for {url}")
+                        log_and_print(f"Valid M3U8 URL found")
                         success = True
                     else:
-                        logger.warning(f"No M3U8 URL found for {url}. Retrying...")  # Only log warnings
+                        logger.warning(f"No M3U8 URL found. Retrying...")  # Only log warnings
                         retries += 1
                         time.sleep(1)
 
                 except requests.exceptions.RequestException as e:
-                    logger.error(f"Error for {url}: {e}")  # Only log errors
+                    logger.error(f"Error: {e}")  # Only log errors
                     retries += 1
                     time.sleep(1)
 
@@ -184,7 +184,7 @@ while True:
     append_additional_urls(temp_file_path)
     log_and_print("Additional static URLs appended to temp.txt.")
 
-    log_and_print("Running tezt2.py...")
+    log_and_print("Running packaging operator...")
     subprocess.run(['python', tezt2_script_path])
 
     elapsed_time = time.time() - start_time
@@ -200,7 +200,7 @@ while True:
     log_and_print(f"Scraping finished in {int(elapsed_minutes)} minutes and {int(elapsed_seconds)} seconds.")
     log_and_print(f"Next scraping cycle will start at {next_scrape_time_formatted}.")
     log_and_print("")
-    log_and_print("Running ftp.py...")
+    log_and_print("Sending Peyo The Postman on a job...")
     subprocess.run(['python', ftp_script_path])
 
     # Close and flush handlers, for scrapelog.txt to be unused prior deletion.
