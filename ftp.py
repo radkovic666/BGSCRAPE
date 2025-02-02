@@ -1,40 +1,47 @@
-from ftplib import FTP
-import os
+import base64
+import requests
 
-# Function to clear the terminal screen
-#def clear_screen():
-    #cls.system("cls")
+# GitHub repository details
+GITHUB_USER = "radkovic666"
+GITHUB_REPO = "bgtv"
+GITHUB_TOKEN = "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"  # Replace with your token
 
+# GitHub API URL for repo contents
+GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
-#clear_screen()
+# Files to upload
+FILES = ["scrapelog.txt", "playlist.m3u"]
 
-# FTP server details
-ftp_server = '178.16.128.165'
-ftp_port = 21
-ftp_user = 'u897539158'  # Replace with your actual FTP username
-ftp_pass = 'H0rnbow12!'  # Replace with your actual FTP password
+def upload_file(file_path):
+    """Uploads a file to GitHub repo."""
+    with open(file_path, "rb") as file:
+        content = base64.b64encode(file.read()).decode()
 
+    file_name = file_path.split("/")[-1]
+    url = f"{GITHUB_API_URL}{file_name}"
 
-# File details
-local_file = 'playlist.m3u'  # Playlist File is in the same directory as the script
-remote_file = '/domains/hajanddebono.com/public_html/images/playlist.m3u'  # Path on the server where you want to upload the playlist file
-log_file = 'scrapelog.txt'  # Log File is in the same directory as the script
-remote_log_file = '/domains/hajanddebono.com/public_html/images/scrapelog.txt'  # Path on the server where you want to upload the log file
+    # Get existing file info (to update if it already exists)
+    response = requests.get(url, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+    sha = response.json().get("sha", "")
 
+    # Prepare request payload
+    payload = {
+        "message": f"Upload {file_name}",
+        "content": content,
+        "branch": "main"
+    }
+    if sha:
+        payload["sha"] = sha  # Required for updating existing files
 
-# Connect to the FTP server
-ftp = FTP()
-ftp.connect(ftp_server, ftp_port)
-ftp.login(ftp_user, ftp_pass)
+    # Upload file
+    response = requests.put(url, json=payload, headers={"Authorization": f"token {GITHUB_TOKEN}"})
+    
+    if response.status_code in [200, 201]:
+        print(f"Successfully uploaded {file_name}")
+    else:
+        print(f"Failed to upload {file_name}: {response.json()}")
 
-# Open the local file and upload it
-with open(local_file, 'rb') as file:
-    ftp.storbinary(f'STOR {remote_file}', file)
-with open(log_file, 'rb') as file:
-    ftp.storbinary(f'STOR {remote_log_file}', file)
+# Upload all files
+for file in FILES:
+    upload_file(file)
 
-# Close the FTP connection
-ftp.quit()
-
-print(f"File {local_file} has been uploaded to {ftp_server}/{remote_file}")
-print(f"File {log_file} has been uploaded to {ftp_server}/{remote_log_file}")
