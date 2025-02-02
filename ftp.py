@@ -37,9 +37,9 @@ def upload_file(file_path):
     response = requests.put(url, json=payload, headers={"Authorization": f"token {GITHUB_TOKEN}"})
     
     if response.status_code in [200, 201]:
-        print(f"Successfully uploaded {file_name}")
+        print(f"Successfully delivered {file_name}")
     else:
-        print(f"Failed to upload {file_name}: {response.json()}")
+        print(f"Poor Peyo FAILED to deliver {file_name}: {response.json()}")
 
 # Upload all files
 for file in FILES:
