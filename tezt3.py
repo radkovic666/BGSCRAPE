@@ -182,7 +182,7 @@ while True:
                 logger.error(f"Failed to retrieve M3U8 URL for {url} after 5 attempts.")
 
     append_additional_urls(temp_file_path)
-    log_and_print("Additional static URLs appended to temp.txt.")
+    log_and_print("Additional static URLs added.")
 
     log_and_print("Running packaging operator...")
     subprocess.run(['python', tezt2_script_path])
