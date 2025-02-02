@@ -165,10 +165,12 @@ while True:
                     if m3u8_url:
                         clean_url = m3u8_url.group(0).strip('"')
                         f.write(clean_url + '\n')
-                        log_and_print(f"Valid M3U8 URL found for {url}")
+                        #log_and_print(f"Valid M3U8 URL found for {url}")
+                        log_and_print(f"Valid M3U8 URL found}")
                         success = True
                     else:
-                        logger.warning(f"No M3U8 URL found for {url}. Retrying...")  # Only log warnings
+                        #logger.warning(f"No M3U8 URL found for {url}. Retrying...")  # Only log warnings
+                        logger.warning(f"No M3U8 URL found. Retrying...")  # Only log warnings
                         retries += 1
                         time.sleep(1)
 
