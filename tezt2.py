@@ -69,13 +69,16 @@ channel_metadata = {
     "magictv": {"name": "Magic TV", "tvg_id": "MagicTV", "group_title": "Музикални", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/MagicTV_logo.png"},
 
     "hls": {"name": "Евроком", "tvg_id": "Eurocom", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/eurocom.png"},
+    #"tracks-v1a1": {"name": "MTV", "tvg_id": "MTV", "group_title": "Чуждестранни", "logo": "https://e1.pngegg.com/pngimages/734/114/png-clipart-tv-channel-icons-mtv-withe-white-and-blue-mtv-logo-graphic.png"},
     "travel": {"name": "Travel TV", "tvg_id": "Travel", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/travel-1.png"},
-    "thisisbulgaria": {"name": "ThisIsBulgaria", "tvg_id": "thisisbg", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/tovae.png"},
+    "thisisbulgaria": {"name": "This Is Bulgaria", "tvg_id": "thisisbg", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/tovae.png"},
     "autotv": {"name": "100 Auto Moto", "tvg_id": "AutoMotorSport", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/automoto.png"},
-    #"k0": {"name": "Канал 0", "tvg_id": "Kanal0", "group_title": "Общи", "logo": "https://hajanddebono.com/images/kanal0.png"},
+    "k0": {"name": "Канал 0", "tvg_id": "Kanal0", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/kanal0.png"},
     "zagoratv.ddns.net:8080": {"name": "TV Zagora", "tvg_id": "TVSTZ", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/zagora.png"},
-    "stream04": {"name": "Deutsche Welle", "tvg_id": "deutschewelle.de", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/dwelle.png"}
-
+    "stream04": {"name": "Deutsche Welle", "tvg_id": "DeutscheWelle", "group_title": "Чуждестранни", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/dwelle.png"},
+    "temp": {"name": "TV1", "tvg_id": "TV1", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/tv1.png"},
+    "shorturl.at": {"name": "DSTV", "tvg_id": "DSTV", "group_title": "Музикални", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/dstv.png"},
+    "rb.gy": {"name": "Agro TV", "tvg_id": "agroTV", "group_title": "Общи", "logo": "https://raw.githubusercontent.com/radkovic666/bgtv/refs/heads/main/images/agrotv.png"}
 
 
 
@@ -126,13 +129,13 @@ def generate_m3u():
         outfile.writelines(m3u_content)
     #print(f"{output_file} has been successfully created!")
 
-def call_ftp_script():
+#def call_ftp_script():
     # Define the path to the ftp.py script
-    script_path = os.path.join(os.getcwd(), 'ftp.py')
+    #script_path = os.path.join(os.getcwd(), 'ftp.py')
     
     # Run the ftp.py script using subprocess
-    subprocess.run(['python', script_path], check=True)
+    #subprocess.run(['python', script_path], check=True)
 
 # Run the function
 generate_m3u()
-call_ftp_script()
+#call_ftp_script()

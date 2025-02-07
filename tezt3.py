@@ -55,16 +55,19 @@ def append_additional_urls(file_path):
     additional_urls = [
         "https://streamer103.neterra.tv/tiankov-folk/live.m3u8", #TiankovFolk
         #"https://streamer103.neterra.tv/tiankov-orient/live.m3u8", #TiankovOrient
+        "https://shorturl.at/RNYlf", #DSTV
         "https://bss1.neterra.tv/magictv/stream_0.m3u8",
         "https://bss1.neterra.tv/thevoice/stream_0.m3u8",
-        "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream04/streamPlaylist.m3u8",
         "https://live.ecomservice.bg/hls/stream.m3u8",
         "https://streamer103.neterra.tv/travel/live.m3u8",
         "https://streamer103.neterra.tv/thisisbulgaria/live.m3u8", #ThisIsBulgaria
+        "https://tv1.cloudcdn.bg/temp/livestream-720p.m3u8", #tv1
         "http://100automoto.tv:1935/bgtv1/autotv/playlist.m3u8", #100 Auto Moto
-        #"https://old.rn-tv.com/k0/stream.m3u8", #Kanal0
+        "https://old.rn-tv.com/k0/stream.m3u8", #Kanal0
         "http://zagoratv.ddns.net:8080/tvzagora.m3u8", #TV Zagora
-
+        "https://rb.gy/4x2a5u", #AGRO
+        "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream04/streamPlaylist.m3u8", #DW
+        #"https://streamer1.nexgen.bz/MTV/tracks-v1a1/mono.m3u8"
       
     ]
     with open(file_path, 'a') as f:
@@ -136,6 +139,8 @@ while True:
         "https://www.gledaitv.live/watch-tv/18/discovery-channel-online",
         "https://www.gledaitv.live/watch-tv/21/history-channel-online",
         "https://www.gledaitv.live/watch-tv/19/docubox-online",
+        "https://www.gledaitv.live/watch-tv/35/24-kitchen-online",
+        "https://www.gledaitv.live/watch-tv/36/tlc-online",
         "https://www.gledaitv.live/watch-tv/15/disney-channel-online",
         "https://www.gledaitv.live/watch-tv/16/cartoon-network-online",
         "https://www.gledaitv.live/watch-tv/14/nickelodeon-online",
@@ -144,9 +149,7 @@ while True:
         "https://www.gledaitv.live/watch-tv/40/planeta-hd-online",
         "https://www.gledaitv.live/watch-tv/39/planeta-folk-online",
         "https://www.gledaitv.live/watch-tv/74/fen-tv-online",
-        "https://www.gledaitv.live/watch-tv/73/balkanika-tv-online",
-        "https://www.gledaitv.live/watch-tv/35/24-kitchen-online",
-        "https://www.gledaitv.live/watch-tv/36/tlc-online"
+        "https://www.gledaitv.live/watch-tv/73/balkanika-tv-online"
     ]
 
     with open(temp_file_path, 'w') as f:
@@ -179,7 +182,8 @@ while True:
                     time.sleep(1)
 
             if not success:
-                logger.error(f"Failed to retrieve M3U8 URL for {url} after 5 attempts.")
+                #logger.error(f"Failed to retrieve M3U8 URL for {url} after 5 attempts.")
+                logger.error(f"Failed to retrieve M3U8 URL after 5 attempts.")
 
     append_additional_urls(temp_file_path)
     log_and_print("Additional static URLs added.")
