@@ -65,7 +65,6 @@ def append_additional_urls(file_path):
         "http://100automoto.tv:1935/bgtv1/autotv/playlist.m3u8", #100 Auto Moto
         "https://old.rn-tv.com/k0/stream.m3u8", #Kanal0
         "http://zagoratv.ddns.net:8080/tvzagora.m3u8", #TV Zagora
-        "https://rb.gy/4x2a5u", #AGRO
         "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream04/streamPlaylist.m3u8", #DW
         #"https://streamer1.nexgen.bz/MTV/tracks-v1a1/mono.m3u8"
       
