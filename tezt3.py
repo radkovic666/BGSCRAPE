@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 # Paths
 script_dir = os.path.dirname(os.path.abspath(__file__))
-exe_path = os.path.join(script_dir, "exiter.exe")
+vbs_path = os.path.join(script_dir, "exiter.vbs")
 temp_file_path = os.path.join(script_dir, 'temp.txt')
 tezt2_script_path = os.path.join(script_dir, 'tezt2.py')  # Path to tezt2.py
 ftp_script_path = os.path.join(script_dir, 'ftp.py')  # Path to ftp.py
@@ -158,7 +158,7 @@ while True:
 
             while retries < 5 and not success:
                 try:
-                    subprocess.Popen([exe_path])  # Run exiter.exe for each retry
+                    subprocess.Popen(["wscript", vbs_path], shell=True)
                     response = requests.get(f"http://localhost:8000/html?url={url}")
                     response.raise_for_status()
                     html_content = response.text
