@@ -81,7 +81,9 @@ async def get_cookies(url: str, retries: int = 5):
         driver.quit()
         return CookieResponse(cookies=cookies, user_agent=user_agent)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        #raise HTTPException(status_code=500)
+        #raise HTTPException(status_code=500, detail=str(e))
+        print ("500 Internal Server Error")
 
 # Endpoint to get HTML content and cookies
 @app.get("/html")
@@ -99,7 +101,8 @@ async def get_html(url: str, retries: int = 5):
         driver.quit()
         return response
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        #raise HTTPException(status_code=500)
+        print ("500 Internal Server Error")
 
 # Run tezt3.py on application startup
 @app.on_event("startup")
