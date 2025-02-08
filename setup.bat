@@ -5,15 +5,6 @@ set SCRIPT_DIR=%~dp0
 REM Change to the script directory
 cd /d "%SCRIPT_DIR%"
 
-REM Check if exiter.zip exists and extract it
-if exist exiter.zip (
-    echo Extracting exiter.zip...
-    powershell -Command "Expand-Archive -Path 'exiter.zip' -DestinationPath '%SCRIPT_DIR%' -Force"
-    echo Extraction complete.
-) else (
-    echo exiter.zip not found. Skipping extraction.
-)
-
 REM Check if virtual environment already exists
 if exist venv (
     echo Virtual environment already exists.
