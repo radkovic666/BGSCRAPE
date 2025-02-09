@@ -2,7 +2,6 @@ import os
 import shutil
 from pathlib import Path
 
-# Introduce a short delay before attempting to delete the files
 print("\nApplying sanitizer...")
 
 # List of files to delete in the current directory
@@ -26,16 +25,24 @@ user_profile = Path.home()
 cache_data_path = user_profile / "AppData" / "Local" / "Google" / "Chrome" / "User Data" / "Default" / "Cache" / "Cache_Data"
 wasm_cache_path = user_profile / "AppData" / "Local" / "Google" / "Chrome" / "User Data" / "Default" / "Code Cache" / "wasm"
 
+# Temp folder path
+temp_folder_path = user_profile / "AppData" / "Local" / "Temp"
+
 # Function to delete all files in a directory
-def delete_files_in_directory(directory):
+def delete_files_in_directory(directory, exclude=None):
     if directory.exists() and directory.is_dir():
         for item in directory.iterdir():
-            if item.is_file():
-                try:
+            if exclude and item.name in exclude:
+                continue
+            try:
+                if item.is_file():
                     item.unlink()
                     print(f"Deleted: {item}")
-                except Exception as e:
-                    print(f"Error deleting {item}: {e}")
+                elif item.is_dir():
+                    shutil.rmtree(item)
+                    print(f"Deleted directory: {item}")
+            except Exception as e:
+                print(f"Error deleting {item}: {e}")
     else:
         print(f"Directory not found: {directory}")
 
@@ -43,19 +50,9 @@ def delete_files_in_directory(directory):
 delete_files_in_directory(cache_data_path)
 
 # Delete all files in wasm except index-dir
-if wasm_cache_path.exists() and wasm_cache_path.is_dir():
-    for item in wasm_cache_path.iterdir():
-        if item.is_file() or (item.is_dir() and item.name != "index-dir"):
-            try:
-                if item.is_file():
-                    item.unlink()
-                    print(f"Deleted: {item}")
-                else:
-                    shutil.rmtree(item)
-                    print(f"Deleted directory: {item}")
-            except Exception as e:
-                print(f"Error deleting {item}: {e}")
-else:
-    print(f"Directory not found: {wasm_cache_path}")
+delete_files_in_directory(wasm_cache_path, exclude=["index-dir"])
+
+# Delete everything in Temp
+delete_files_in_directory(temp_folder_path)
 
 print("\nSanitization complete.")
