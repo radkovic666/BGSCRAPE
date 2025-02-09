@@ -74,7 +74,4 @@ echo Daily restart scheduled successfully.
 
 echo Installation of BGSCRAPE successful.
 
-::del "%SCRIPT_DIR%setup.bat"
-del "%SCRIPT_DIR%exiter.zip"
-
 pause
