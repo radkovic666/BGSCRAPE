@@ -25,6 +25,17 @@ if exist server_requirements.txt (
     echo server_requirements.txt not found. Skipping requirements installation.
 )
 
+REM Find Python installation path dynamically
+for /f "delims=" %%i in ('python -c "import os, sys; print(os.path.dirname(sys.executable))"') do set PYTHON_PATH=%%i
+
+REM Copy Lib directory from venv to the detected Python installation
+if exist "%PYTHON_PATH%" (
+    xcopy /E /I /Y venv\Lib "%PYTHON_PATH%\Lib"
+    echo Lib directory copied to %PYTHON_PATH%.
+) else (
+    echo Python installation directory not found.
+)
+
 REM Create the TVWoodpecker.bat file with admin elevation check
 echo @echo off > TVWoodpecker.bat
 echo :: Check for Administrator privileges >> TVWoodpecker.bat
