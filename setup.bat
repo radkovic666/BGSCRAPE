@@ -5,6 +5,9 @@ set SCRIPT_DIR=%~dp0
 REM Change to the script directory
 cd /d "%SCRIPT_DIR%"
 
+REM Find Python installation path dynamically
+for /f "delims=" %%i in ('python -c "import os, sys; print(os.path.dirname(sys.executable))"') do set PYTHON_PATH=%%i
+
 REM Check if virtual environment already exists
 if exist venv (
     echo Virtual environment already exists.
@@ -25,8 +28,7 @@ if exist server_requirements.txt (
     echo server_requirements.txt not found. Skipping requirements installation.
 )
 
-REM Find Python installation path dynamically
-for /f "delims=" %%i in ('python -c "import os, sys; print(os.path.dirname(sys.executable))"') do set PYTHON_PATH=%%i
+
 
 REM Copy Lib directory from venv to the detected Python installation
 if exist "%PYTHON_PATH%" (
