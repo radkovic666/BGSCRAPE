@@ -24,9 +24,10 @@ user_profile = Path.home()
 # Chrome cache paths
 cache_data_path = user_profile / "AppData" / "Local" / "Google" / "Chrome" / "User Data" / "Default" / "Cache" / "Cache_Data"
 wasm_cache_path = user_profile / "AppData" / "Local" / "Google" / "Chrome" / "User Data" / "Default" / "Code Cache" / "wasm"
+js_cache_path = user_profile / "AppData" / "Local" / "Google" / "Chrome" / "User Data" / "Default" / "Code Cache" / "js"
 
 # Temp folder path
-temp_folder_path = user_profile / "AppData" / "Local" / "Temp"
+#temp_folder_path = user_profile / "AppData" / "Local" / "Temp"
 
 # Function to delete all files in a directory
 def delete_files_in_directory(directory, exclude=None):
@@ -52,7 +53,10 @@ delete_files_in_directory(cache_data_path)
 # Delete all files in wasm except index-dir
 delete_files_in_directory(wasm_cache_path, exclude=["index-dir"])
 
+# Delete all files in js except index-dir
+delete_files_in_directory(js_cache_path, exclude=["index-dir"])
+
 # Delete everything in Temp
-delete_files_in_directory(temp_folder_path)
+#delete_files_in_directory(temp_folder_path)
 
 print("\nSanitization complete.")
