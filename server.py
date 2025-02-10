@@ -58,6 +58,7 @@ def bypass_cloudflare(url: str, retries: int, log: bool) -> ChromiumPage:
     options = ChromiumOptions()
     #options.set_argument("--auto-open-devtools-for-tabs", "true")
     options.set_paths(browser_path=browser_path).headless(False)
+    options.set_argument("--window-size=100,100")
 
     driver = ChromiumPage(addr_or_opts=options)
     try:
