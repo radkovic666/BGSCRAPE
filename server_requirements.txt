@@ -1,3 +1,4 @@
+pyshorteners
 requests
 fastapi
 pydantic
