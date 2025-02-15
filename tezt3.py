@@ -12,9 +12,10 @@ from datetime import datetime, timedelta
 script_dir = os.path.dirname(os.path.abspath(__file__))
 #vbs_path = os.path.join(script_dir, "exiter.vbs")
 temp_file_path = os.path.join(script_dir, 'temp.txt')
-tezt2_script_path = os.path.join(script_dir, 'tezt2.py')  # Path to tezt2.py
-ftp_script_path = os.path.join(script_dir, 'ftp.py')  # Path to ftp.py
-ftplog_script_path = os.path.join(script_dir, 'ftplog.py')  # Path to ftp.py
+tezt2_script_path = os.path.join(script_dir, 'tezt2.py')  # Path to packaging operator
+detector_script_path = os.path.join(script_dir, 'detector.py')  # Path to detector
+ftp_script_path = os.path.join(script_dir, 'ftp.py')  # Path to ftp to github
+ftplog_script_path = os.path.join(script_dir, 'ftplog.py')  # Path to ftp to scrapelog domain.
 log_file_path = os.path.join(script_dir, 'scrapelog.txt')
 
 # Ensure the old handlers are cleared
@@ -191,6 +192,9 @@ while True:
     log_and_print("Running packaging operator...")
     subprocess.run(['python', tezt2_script_path])
 
+    log_and_print("Running detector...")
+    subprocess.run(['python', detector_script_path])
+
     elapsed_time = time.time() - start_time
     elapsed_minutes, elapsed_seconds = divmod(elapsed_time, 60)
     remaining_time = max(0, 3600 - elapsed_time)
@@ -205,6 +209,7 @@ while True:
     log_and_print(f"Next scraping cycle will start at {next_scrape_time_formatted}.")
     log_and_print("")
     log_and_print("Sending Peyo The Postman on a job...")
+    
     subprocess.run(['python', ftp_script_path])
     subprocess.run(['python', ftplog_script_path])
 
