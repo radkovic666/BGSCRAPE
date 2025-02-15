@@ -10,7 +10,7 @@ GITHUB_TOKEN = "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"  # Replace with your t
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/contents/"
 
 # Files to upload
-FILES = ["scrapelog.txt", "playlist.m3u"]
+FILES = ["playlist.m3u"]
 
 def upload_file(file_path):
     """Uploads a file to GitHub repo."""

@@ -14,6 +14,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 temp_file_path = os.path.join(script_dir, 'temp.txt')
 tezt2_script_path = os.path.join(script_dir, 'tezt2.py')  # Path to tezt2.py
 ftp_script_path = os.path.join(script_dir, 'ftp.py')  # Path to ftp.py
+ftplog_script_path = os.path.join(script_dir, 'ftplog.py')  # Path to ftp.py
 log_file_path = os.path.join(script_dir, 'scrapelog.txt')
 
 # Ensure the old handlers are cleared
@@ -205,6 +206,7 @@ while True:
     log_and_print("")
     log_and_print("Sending Peyo The Postman on a job...")
     subprocess.run(['python', ftp_script_path])
+    subprocess.run(['python', ftplog_script_path])
 
     # Close and flush handlers, for scrapelog.txt to be unused prior deletion.
     for handler in logger.handlers:
