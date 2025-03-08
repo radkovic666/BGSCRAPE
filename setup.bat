@@ -5,37 +5,12 @@ set SCRIPT_DIR=%~dp0
 REM Change to the script directory
 cd /d "%SCRIPT_DIR%"
 
-REM Find Python installation path dynamically
-for /f "delims=" %%i in ('python -c "import os, sys; print(os.path.dirname(sys.executable))"') do set PYTHON_PATH=%%i
-
-REM Check if virtual environment already exists
-if exist venv (
-    echo Virtual environment already exists.
-) else (
-    REM Create virtual environment
-    python -m venv venv
-    echo Virtual environment created.
-)
-
-REM Activate the virtual environment
-call venv\Scripts\activate.bat
-
 REM Install requirements
 if exist server_requirements.txt (
     pip install -r server_requirements.txt
     echo Requirements installed.
 ) else (
     echo server_requirements.txt not found. Skipping requirements installation.
-)
-
-
-
-REM Copy Lib directory from venv to the detected Python installation
-if exist "%PYTHON_PATH%" (
-    xcopy /E /I /Y venv\Lib "%PYTHON_PATH%\Lib"
-    echo Lib directory copied to %PYTHON_PATH%.
-) else (
-    echo Python installation directory not found.
 )
 
 REM Create the TVWoodpecker.bat file with admin elevation check
@@ -48,13 +23,6 @@ echo     echo Requesting Administrator privileges... >> TVWoodpecker.bat
 echo     powershell -Command "Start-Process '%%~f0' -Verb runAs" >> TVWoodpecker.bat
 echo     exit /b >> TVWoodpecker.bat
 echo ^) >> TVWoodpecker.bat
-
-REM Change to the script directory and activate virtual environment in TVWoodpecker.bat
-echo REM Get the current directory >> TVWoodpecker.bat
-echo set SCRIPT_DIR=%%~dp0 >> TVWoodpecker.bat
-echo REM Change to the script directory >> TVWoodpecker.bat
-echo cd /d "%%SCRIPT_DIR%%" >> TVWoodpecker.bat
-echo call venv\Scripts\activate.bat >> TVWoodpecker.bat
 
 REM Run the Python server in TVWoodpecker.bat
 echo python server.py >> TVWoodpecker.bat
