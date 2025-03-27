@@ -1,4 +1,5 @@
 import json
+import time
 import re
 import os
 import subprocess
@@ -77,6 +78,7 @@ async def get_cookies(url: str, retries: int = 5):
         raise HTTPException(status_code=400, detail="Invalid URL")
     try:
         driver = bypass_cloudflare(url, retries, log)
+        time.sleep(1)
         cookies = driver.cookies(as_dict=True)
         user_agent = driver.user_agent
         driver.quit()
