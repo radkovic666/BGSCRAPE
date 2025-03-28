@@ -1,0 +1,1 @@
+curl -s "http://nyama.fun/download_epg.php"
