@@ -54,22 +54,22 @@ def convert_log_to_html(txt_file, html_file):
 convert_log_to_html(local_txt_file, local_html_file)
 
 # Upload HTML file to FTP
-ftp = FTP()
-ftp.connect(ftp_server, ftp_port)
-ftp.login(ftp_user, ftp_pass)
-ftp.set_pasv(True)
+#ftp = FTP()
+#ftp.connect(ftp_server, ftp_port)
+#ftp.login(ftp_user, ftp_pass)
+#ftp.set_pasv(True)
 
 # Change to the correct directory
-try:
-    ftp.cwd(remote_directory)
-except:
-    print(f"Error: Directory {remote_directory} does not exist.")
-    ftp.quit()
-    exit()
+#$try:
+#    ftp.cwd(remote_directory)
+#except:
+#    print(f"Error: Directory {remote_directory} does not exist.")
+#    ftp.quit()
+#    exit()
 
 # Upload the converted HTML file
-with open(local_html_file, 'rb') as f:
-    ftp.storbinary(f'STOR {local_html_file}', f)
-    print(f"Delivered {local_html_file}")
+#with open(local_html_file, 'rb') as f:
+#    ftp.storbinary(f'STOR {local_html_file}', f)
+#    print(f"Delivered {local_html_file}")
 
-ftp.quit()
+#ftp.quit()
