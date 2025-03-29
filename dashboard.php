@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 
     // Generate new credentials
-    $newUsername = mt_rand(100000, 999999); // 6-digit numbers
-    $newPassword = mt_rand(100000, 999999); // 6-digit number
+    $newUsername = $_SESSION['user_id'] . '-' . bin2hex(random_bytes(4));
+    $newPassword = bin2hex(random_bytes(8));
 
     // Update database
     $updateStmt = $pdo->prepare("UPDATE xtream_codes SET xtream_username = ?, xtream_password = ? WHERE user_id = ?");
@@ -62,9 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         .copy-btn {
             transition: all 0.3s ease;
             padding: 2px 8px;
+            cursor: pointer;
         }
         .copy-btn:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
         .copied-alert {
             position: fixed;
@@ -72,14 +74,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             right: 20px;
             z-index: 1000;
             animation: slideIn 0.3s, fadeOut 0.5s 2s;
+            min-width: 250px;
         }
         @keyframes slideIn {
-            from { right: -100px; }
+            from { right: -300px; }
             to { right: 20px; }
         }
         @keyframes fadeOut {
             from { opacity: 1; }
             to { opacity: 0; }
+        }
+        .font-monospace {
+            user-select: all;
         }
     </style>
 </head>
@@ -139,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                         <div class="d-flex justify-content-between align-items-center">
                             <?php if ($isConnected): ?>
-                                <form method="post" onsubmit="return confirm('Are you sure you want to change device? This will generate new credentials!')">
+                                <form method="post" onsubmit="return confirm('This will generate new credentials and disconnect your current device! Continue?')">
                                     <input type="hidden" name="action" value="change_device">
                                     <button type="submit" class="btn btn-warning">
                                         <i class="fas fa-sync-alt me-2"></i>Change Device
@@ -157,31 +163,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </div>
 
     <div id="copiedAlert" class="copied-alert alert alert-success d-none">
-        <i class="fas fa-check-circle me-2"></i>Copied to clipboard!
+        <i class="fas fa-check-circle me-2"></i>
+        <span class="alert-text">Copied to clipboard!</span>
     </div>
 
     <script>
     function copyCredentials(button) {
         const text = button.getAttribute('data-value');
         const icon = button.querySelector('i');
-        
-        navigator.clipboard.writeText(text).then(() => {
-            const alert = document.getElementById('copiedAlert');
-            alert.classList.remove('d-none');
-            setTimeout(() => alert.classList.add('d-none'), 2500);
+        const alertBox = document.getElementById('copiedAlert');
+        const alertText = alertBox.querySelector('.alert-text');
 
-            icon.classList.replace('fa-copy', 'fa-check');
-            button.classList.add('btn-success');
-            button.classList.remove('btn-outline-primary');
+        // Fallback method for older browsers
+        const legacyCopy = text => {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                return successful;
+            } catch (err) {
+                document.body.removeChild(textArea);
+                return false;
+            }
+        };
 
+        // Modern clipboard API
+        const modernCopy = async text => {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (err) {
+                return false;
+            }
+        };
+
+        // Main copy handler
+        const handleCopy = async () => {
+            let success = false;
+            
+            if (navigator.clipboard) {
+                success = await modernCopy(text);
+            } else {
+                success = legacyCopy(text);
+            }
+
+            // Visual feedback
+            if (success) {
+                alertBox.classList.remove('alert-danger');
+                alertBox.classList.add('alert-success');
+                alertText.textContent = 'Copied to clipboard!';
+                
+                icon.classList.replace('fa-copy', 'fa-copy');
+                button.classList.add('btn-success');
+                button.classList.remove('btn-outline-primary');
+            } else {
+                alertBox.classList.remove('alert-success');
+                alertBox.classList.add('alert-danger');
+                alertText.textContent = 'Copy failed! Select text and press Ctrl+C';
+            }
+
+            // Show alert
+            alertBox.classList.remove('d-none');
             setTimeout(() => {
-                icon.classList.replace('fa-check', 'fa-copy');
-                button.classList.remove('btn-success');
-                button.classList.add('btn-outline-primary');
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            alert('Failed to copy to clipboard');
+                alertBox.classList.add('d-none');
+                
+                // Reset button state
+                if (success) {
+                    setTimeout(() => {
+                        icon.classList.replace('fa-copy', 'fa-copy');
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-primary');
+                    }, 100);
+                }
+            }, 2500);
+        };
+
+        handleCopy().catch(err => {
+            console.error('Copy error:', err);
+            alertText.textContent = 'Copy failed! Please manually copy';
+            alertBox.classList.remove('d-none');
+            alertBox.classList.add('alert-danger');
         });
     }
     </script>
