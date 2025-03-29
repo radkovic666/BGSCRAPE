@@ -25,6 +25,30 @@ if (file_exists($deviceUsageFile)) {
         $isConnected = true;
     }
 }
+
+// Handle Change Device request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_device') {
+    // Remove device entry
+    if (file_exists($deviceUsageFile)) {
+        $deviceUsage = json_decode(file_get_contents($deviceUsageFile), true);
+        if (is_array($deviceUsage) && isset($deviceUsage[$data['xtream_username']])) {
+            unset($deviceUsage[$data['xtream_username']]);
+            file_put_contents($deviceUsageFile, json_encode($deviceUsage));
+        }
+    }
+
+    // Generate new credentials
+    $newUsername = mt_rand(100000, 999999); // 6-digit numbers
+    $newPassword = mt_rand(100000, 999999); // 6-digit number
+
+    // Update database
+    $updateStmt = $pdo->prepare("UPDATE xtream_codes SET xtream_username = ?, xtream_password = ? WHERE user_id = ?");
+    $updateStmt->execute([$newUsername, $newPassword, $_SESSION['user_id']]);
+
+    // Redirect to prevent resubmission
+    header("Location: dashboard.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -101,7 +125,6 @@ if (file_exists($deviceUsageFile)) {
                             </div>
                         </div>
 
-                        <!-- Device Connection Status -->
                         <?php if ($isConnected): ?>
                             <div class="alert alert-warning mb-3">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
@@ -114,7 +137,19 @@ if (file_exists($deviceUsageFile)) {
                             </div>
                         <?php endif; ?>
 
-                        <a href="logout.php" class="btn btn-danger">Logout</a>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <?php if ($isConnected): ?>
+                                <form method="post" onsubmit="return confirm('Are you sure you want to change device? This will generate new credentials!')">
+                                    <input type="hidden" name="action" value="change_device">
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-sync-alt me-2"></i>Change Device
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <div></div>
+                            <?php endif; ?>
+                            <a href="logout.php" class="btn btn-danger">Logout</a>
+                        </div>
                     </div>
                 </div>
             </div>
