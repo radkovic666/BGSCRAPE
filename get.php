@@ -1,18 +1,5 @@
 <?php
-// User credentials (manually managed or fetched from a database)
-$users = [
-    "usr41" => "p3s9k",
-    "a92jf" => "l8md2",
-    "x5y2z" => "k9p4v",
-    "q7w8e" => "r3t2y",
-    "m3n4b" => "c6x1z",
-    "p9l8o" => "v2b5n",
-    "g7h2k" => "s4m3c",
-    "d1j5f" => "q8w6e",
-    "z3x2v" => "y5t9r",
-    "bango" => "vasil",
-    "u4o7p" => "h3j1k"
-];
+require 'config.php';
 
 // Path to a file that stores device identifiers for users
 $usage_file = 'user_device_usage.json';
@@ -23,7 +10,11 @@ $password = $_GET['password'] ?? '';
 $type = $_GET['type'] ?? '';
 
 // Validate user credentials
-if (isset($users[$username]) && $users[$username] === $password) {
+$stmt = $pdo->prepare("SELECT xtream_password FROM xtream_codes WHERE xtream_username = ?");
+$stmt->execute([$username]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($user && $user['xtream_password'] === $password) {
     // Generate or retrieve unique device identifier (token)
     $device_token = $_GET['device_token'] ?? ''; // Expect a device token from the client
 
@@ -53,7 +44,7 @@ if (isset($users[$username]) && $users[$username] === $password) {
     echo "#EXTM3U tvg-id=\"https://epg.cloudns.org/dl.php\"\n";
 
     // Read and output the M3U playlist
-    $playlist_url = "http://nyama.fun/playlist.m3u"; // Change if needed
+    $playlist_url = "http://88.203.24.111/playlist.m3u"; // Change if needed
     $playlist_content = file_get_contents($playlist_url);
 
     if ($playlist_content !== false) {
