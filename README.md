@@ -1,4 +1,16 @@
 
+$username = 'your_db_username';  // ← Replace this
+$password = 'your_db_password';  // ← Replace this
+User Privileges
+The specified user might not have access to the database. Create a dedicated user:
+
+sql
+Copy
+CREATE USER 'iptv_user'@'localhost' IDENTIFIED BY 'strong_password_here';
+GRANT ALL PRIVILEGES ON iptv_users.* TO 'iptv_user'@'localhost';
+FLUSH PRIVILEGES;
+
+
 # Cloudflare Turnstile Page & Captcha Bypass for Scraping
 
 **We love scraping, don't we?** But sometimes, we face Cloudflare protection. This script is designed to bypass the Cloudflare protection on websites, allowing you to interact with them programmatically. 
