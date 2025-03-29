@@ -16,7 +16,7 @@
       xtream_password VARCHAR(50) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id)
-);
+    );
 
     $username = 'your_db_username';  // ← Replace this
     $password = 'your_db_password';  // ← Replace this
