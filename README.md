@@ -1,14 +1,33 @@
 
-$username = 'your_db_username';  // ← Replace this
-$password = 'your_db_password';  // ← Replace this
-User Privileges
-The specified user might not have access to the database. Create a dedicated user:
+#
+    CREATE DATABASE iptv_users;
 
-sql
-Copy
-CREATE USER 'iptv_user'@'localhost' IDENTIFIED BY 'strong_password_here';
-GRANT ALL PRIVILEGES ON iptv_users.* TO 'iptv_user'@'localhost';
-FLUSH PRIVILEGES;
+    CREATE TABLE users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE xtream_codes (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      xtream_username VARCHAR(50) UNIQUE NOT NULL,
+      xtream_password VARCHAR(50) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+    $username = 'your_db_username';  // ← Replace this
+    $password = 'your_db_password';  // ← Replace this
+    User Privileges
+    The specified user might not have access to the database. Create a dedicated user:
+
+    sql
+    Copy
+    CREATE USER 'iptv_user'@'localhost' IDENTIFIED BY 'strong_password_here';
+    GRANT ALL PRIVILEGES ON iptv_users.* TO 'iptv_user'@'localhost';
+    FLUSH PRIVILEGES;
 
 
 # Cloudflare Turnstile Page & Captcha Bypass for Scraping
