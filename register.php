@@ -41,8 +41,8 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_id = $pdo->lastInsertId();
             
             // Generate Xtream code
-            $xt_user = 'xt_' . bin2hex(random_bytes(4));
-            $xt_pass = bin2hex(random_bytes(8));
+	    $xt_user = mt_rand(100000, 999999); // 6-digit number
+	    $xt_pass = mt_rand(100000, 999999); // 6-digit number
             
             $stmt = $pdo->prepare("INSERT INTO xtream_codes (user_id, xtream_username, xtream_password) VALUES (?, ?, ?)");
             $stmt->execute([$user_id, $xt_user, $xt_pass]);

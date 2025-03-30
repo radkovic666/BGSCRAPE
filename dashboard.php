@@ -37,9 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
     }
 
-    // Generate new credentials
-    $newUsername = $_SESSION['user_id'] . '-' . bin2hex(random_bytes(4));
-    $newPassword = bin2hex(random_bytes(8));
+    $newUsername = mt_rand(100000, 999999); // 6-digit number
+    $newPassword = mt_rand(100000, 999999); // 6-digit number
 
     // Update database
     $updateStmt = $pdo->prepare("UPDATE xtream_codes SET xtream_username = ?, xtream_password = ? WHERE user_id = ?");
@@ -123,6 +122,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                         </div>
                                         <button class="btn copy-btn btn-outline-primary" 
                                                 data-value="<?= htmlspecialchars($data['xtream_password']) ?>"
+                                                onclick="copyCredentials(this)">
+                                            <i class="far fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <hr class="mt-2">
+                                
+                                <div class="col-12 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>M3U URL:</strong>
+                                            <div class="font-monospace">
+                                                http://nyama.fun/get.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>
+                                            </div>
+                                        </div>
+                                        <button class="btn copy-btn btn-outline-primary" 
+                                                data-value="http://nyama.fun/get.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>"
+                                                onclick="copyCredentials(this)">
+                                            <i class="far fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>EPG URL:</strong>
+                                            <div class="font-monospace">
+                                                http://nyama.fun/xmltv.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>
+                                            </div>
+                                        </div>
+                                        <button class="btn copy-btn btn-outline-primary" 
+                                                data-value="http://nyama.fun/xmltv.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>"
                                                 onclick="copyCredentials(this)">
                                             <i class="far fa-copy"></i>
                                         </button>
