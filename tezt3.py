@@ -210,8 +210,9 @@ while True:
     log_and_print("")
     log_and_print("Sending Peyo The Postman on a job...")
     
-    subprocess.run(['python', ftp_script_path])
     subprocess.run(['python', ftplog_script_path])
+    subprocess.run(['python', ftp_script_path])
+
 
     # Close and flush handlers, for scrapelog.txt to be unused prior deletion.
     for handler in logger.handlers:
