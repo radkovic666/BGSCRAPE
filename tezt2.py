@@ -73,8 +73,8 @@ channel_metadata = {
     "travel": {"name": "Travel TV", "tvg_id": "Travel", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/travel.png"},
     "thisisbulgaria": {"name": "This Is Bulgaria", "tvg_id": "thisisbg", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/thisisbg.png"},
     "autotv": {"name": "100 Auto Moto", "tvg_id": "AutoMotorSport", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/automotorsport.png"},
-    "k0": {"name": "Канал 0", "tvg_id": "Kanal0", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/kanal0.png"},
-    "zagoratv.ddns.net:8080": {"name": "TV Zagora", "tvg_id": "TVSTZ", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/tvstz.png"},
+    #"k0": {"name": "Канал 0", "tvg_id": "Kanal0", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/kanal0.png"},
+    #"zagoratv.ddns.net:8080": {"name": "TV Zagora", "tvg_id": "TVSTZ", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/tvstz.png"},
     "stream04": {"name": "Deutsche Welle", "tvg_id": "DeutscheWelle", "group_title": "Чуждестранни", "logo": "http://logos.epg.cloudns.org/deutschewelle.png"},
     "temp": {"name": "TV1", "tvg_id": "TV1", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/tv1.png"},
     "shorturl.at": {"name": "DSTV", "tvg_id": "DSTV", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/dstv.png"}

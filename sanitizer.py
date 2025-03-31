@@ -5,7 +5,7 @@ from pathlib import Path
 print("\nApplying sanitizer...")
 
 # List of files to delete in the current directory
-files_to_delete = ["temp.txt", "scrapelog.txt", "playlist.m3u"]
+files_to_delete = ["temp.txt", "scrapelog.txt"]
 
 for file_name in files_to_delete:
     if os.path.exists(file_name):

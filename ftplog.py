@@ -1,3 +1,11 @@
+from ftplib import FTP
+
+# FTP server details
+ftp_server = '185.27.134.11'  # Direct FTP IP address
+ftp_port = 21
+ftp_user = 'if0_38223125'
+ftp_pass = 'PZei3Ju4KnGv'  # Replace with actual password
+
 # File details
 local_txt_file = 'scrapelog.txt'
 local_html_file = 'scrapelog.html'
@@ -44,3 +52,24 @@ def convert_log_to_html(txt_file, html_file):
 
 # Convert log to HTML
 convert_log_to_html(local_txt_file, local_html_file)
+
+# Upload HTML file to FTP
+#ftp = FTP()
+#ftp.connect(ftp_server, ftp_port)
+#ftp.login(ftp_user, ftp_pass)
+#ftp.set_pasv(True)
+
+# Change to the correct directory
+#$try:
+#    ftp.cwd(remote_directory)
+#except:
+#    print(f"Error: Directory {remote_directory} does not exist.")
+#    ftp.quit()
+#    exit()
+
+# Upload the converted HTML file
+#with open(local_html_file, 'rb') as f:
+#    ftp.storbinary(f'STOR {local_html_file}', f)
+#    print(f"Delivered {local_html_file}")
+
+#ftp.quit()

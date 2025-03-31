@@ -1,5 +1,6 @@
 import shutil
 import os
+import requests
 
 # Get the script's directory as the source directory
 source_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,3 +22,19 @@ for file in files_to_copy:
         print(f"Delivered: {file} → {destination_dir}")
     else:
         print(f"File not found: {src_path}")
+
+# Run import_playlist.php to update the database
+try:
+    response = requests.get("http://localhost/import_playlist.php", timeout=10)
+    if response.status_code == 200:
+        print("Database updated successfully.")
+        
+        # Delete playlist.m3u from destination after successful update
+        playlist_path = os.path.join(destination_dir, "playlist.m3u")
+        if os.path.exists(playlist_path):
+            os.remove(playlist_path)
+            print(f"Deleted: {playlist_path}")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+except requests.RequestException as e:
+    print(f"Failed to update database: {e}")
