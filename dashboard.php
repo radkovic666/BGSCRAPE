@@ -37,14 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
     }
 
-    $newUsername = mt_rand(100000, 999999); // 6-digit number
-    $newPassword = mt_rand(100000, 999999); // 6-digit number
+    $newUsername = mt_rand(100000, 999999);
+    $newPassword = mt_rand(100000, 999999);
 
-    // Update database
     $updateStmt = $pdo->prepare("UPDATE xtream_codes SET xtream_username = ?, xtream_password = ? WHERE user_id = ?");
     $updateStmt->execute([$newUsername, $newPassword, $_SESSION['user_id']]);
 
-    // Redirect to prevent resubmission
     header("Location: dashboard.php");
     exit();
 }
@@ -58,48 +56,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .copy-btn {
-            transition: all 0.3s ease;
-            padding: 2px 8px;
-            cursor: pointer;
-        }
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .copied-alert {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            animation: slideIn 0.3s, fadeOut 0.5s 2s;
-            min-width: 250px;
-        }
-        @keyframes slideIn {
-            from { right: -300px; }
-            to { right: 20px; }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        .font-monospace {
-            user-select: all;
-        }
+        .copy-btn { transition: all 0.3s ease; padding: 2px 8px; cursor: pointer; }
+        .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .copied-alert { position: fixed; top: 20px; right: 20px; z-index: 1000; 
+                      animation: slideIn 0.3s, fadeOut 0.5s 2s; min-width: 250px; }
+        @keyframes slideIn { from { right: -300px; } to { right: 20px; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        .font-monospace { user-select: all; }
+        .url-section { border-left: 3px solid #0d6efd; padding-left: 1rem; margin: 1rem 0; }
     </style>
 </head>
 <body class="bg-light">
     <div class="container py-5">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0">Welcome, <?= htmlspecialchars($data['username']) ?>!</h4>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info">
-                            <h5 class="alert-heading">Your Xtream Codes</h5>
+                            <h5 class="alert-heading">Connection Details</h5>
                             <hr>
+
+                            <!-- Main Credentials -->
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -127,67 +107,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <hr class="mt-2">
-                                
-                                <div class="col-12 mb-3">
+                            </div>
+
+                            <!-- Xtream Codes API -->
+                            <div class="url-section">
+                                <h6 class="mb-2"><i class="fas fa-plug me-2"></i>Xtream Codes API</h6>
+                                <div class="font-monospace">
+                                    Server: http://nyama.fun:80<br>
+                                    Username: <?= htmlspecialchars($data['xtream_username']) ?><br>
+                                    Password: <?= htmlspecialchars($data['xtream_password']) ?>
+                                </div>
+                            </div>
+
+                            <!-- M3U URLs -->
+                            <div class="url-section">
+                                <h6 class="mb-2"><i class="fas fa-list me-2"></i>M3U Playlist URL</h6>
+                                <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong>M3U URL:</strong>
-                                            <div class="font-monospace">
-                                                http://nyama.fun/get.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>
-                                            </div>
+                                        <div class="font-monospace">
+                                            http://nyama.fun/playlist.m3u?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>
                                         </div>
-                                        <button class="btn copy-btn btn-outline-primary" 
-                                                data-value="http://nyama.fun/get.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>"
+                                        <button class="btn copy-btn btn-outline-primary ms-2" 
+                                                data-value="http://nyama.fun/playlist.m3u?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>"
                                                 onclick="copyCredentials(this)">
                                             <i class="far fa-copy"></i>
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <div class="col-12 mb-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong>EPG URL:</strong>
-                                            <div class="font-monospace">
-                                                http://nyama.fun/xmltv.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>
-                                            </div>
-                                        </div>
-                                        <button class="btn copy-btn btn-outline-primary" 
-                                                data-value="http://nyama.fun/xmltv.php?username=<?= htmlspecialchars($data['xtream_username']) ?>&password=<?= htmlspecialchars($data['xtream_password']) ?>"
-                                                onclick="copyCredentials(this)">
-                                            <i class="far fa-copy"></i>
-                                        </button>
+                            </div>
+
+                            <!-- EPG URL -->
+                            <div class="url-section">
+                                <h6 class="mb-2"><i class="fas fa-tv me-2"></i>EPG Guide URL</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="font-monospace">
+                                        https://epg.cloudns.org/dl.php
                                     </div>
+                                    <button class="btn copy-btn btn-outline-primary ms-2" 
+                                            data-value="https://epg.cloudns.org/dl.php"
+                                            onclick="copyCredentials(this)">
+                                        <i class="far fa-copy"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Device Status -->
                         <?php if ($isConnected): ?>
                             <div class="alert alert-warning mb-3">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                You are currently connected to a device.
+                                Active connection detected on another device
                             </div>
                         <?php else: ?>
                             <div class="alert alert-success mb-3">
                                 <i class="fas fa-check-circle me-2"></i>
-                                You are not connected to any device.
+                                No active connections
                             </div>
                         <?php endif; ?>
 
+                        <!-- Controls -->
                         <div class="d-flex justify-content-between align-items-center">
                             <?php if ($isConnected): ?>
-                                <form method="post" onsubmit="return confirm('This will generate new credentials and disconnect your current device! Continue?')">
+                                <form method="post" onsubmit="return confirm('This will reset all connections and generate new credentials! Continue?')">
                                     <input type="hidden" name="action" value="change_device">
                                     <button type="submit" class="btn btn-warning">
-                                        <i class="fas fa-sync-alt me-2"></i>Change Device
+                                        <i class="fas fa-sync-alt me-2"></i>Reset Connection
                                     </button>
                                 </form>
                             <?php else: ?>
-                                <div></div>
+                                <div class="text-muted">Your connection is secure</div>
                             <?php endif; ?>
-                            <a href="logout.php" class="btn btn-danger">Logout</a>
+                            <a href="logout.php" class="btn btn-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
                         </div>
                     </div>
                 </div>
