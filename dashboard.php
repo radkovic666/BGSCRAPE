@@ -76,7 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     </div>
                     <div class="card-body">
                         <div class="alert alert-info">
-                            <h5 class="alert-heading">Connection Details</h5>
+                            <h5 class="alert-heading">Account Details</h5>
+                                <div class="text-muted">Enjoy! Use your URL's with your favorite IPTV Player. Only 1 device per account !</div>
                             <hr>
 
                             <!-- Main Credentials -->
@@ -87,11 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                             <strong>Username:</strong>
                                             <div class="font-monospace"><?= htmlspecialchars($data['xtream_username']) ?></div>
                                         </div>
-                                        <button class="btn copy-btn btn-outline-primary" 
-                                                data-value="<?= htmlspecialchars($data['xtream_username']) ?>"
-                                                onclick="copyCredentials(this)">
-                                            <i class="far fa-copy"></i>
-                                        </button>
+
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -100,22 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                             <strong>Password:</strong>
                                             <div class="font-monospace"><?= htmlspecialchars($data['xtream_password']) ?></div>
                                         </div>
-                                        <button class="btn copy-btn btn-outline-primary" 
-                                                data-value="<?= htmlspecialchars($data['xtream_password']) ?>"
-                                                onclick="copyCredentials(this)">
-                                            <i class="far fa-copy"></i>
-                                        </button>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Xtream Codes API -->
-                            <div class="url-section">
-                                <h6 class="mb-2"><i class="fas fa-plug me-2"></i>Xtream Codes API</h6>
-                                <div class="font-monospace">
-                                    Server: http://nyama.fun:80<br>
-                                    Username: <?= htmlspecialchars($data['xtream_username']) ?><br>
-                                    Password: <?= htmlspecialchars($data['xtream_password']) ?>
                                 </div>
                             </div>
 
@@ -141,10 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 <h6 class="mb-2"><i class="fas fa-tv me-2"></i>EPG Guide URL</h6>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="font-monospace">
-                                        https://epg.cloudns.org/dl.php
+                                        http://epg.cloudns.org/dl.php
                                     </div>
                                     <button class="btn copy-btn btn-outline-primary ms-2" 
-                                            data-value="https://epg.cloudns.org/dl.php"
+                                            data-value="http://epg.cloudns.org/dl.php"
                                             onclick="copyCredentials(this)">
                                         <i class="far fa-copy"></i>
                                     </button>
@@ -156,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <?php if ($deviceInfo): ?>
                             <div class="alert alert-warning mb-3">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                Account connected to <?= htmlspecialchars($deviceInfo['user_agent']) ?> since <?= date('d-m-y', $deviceInfo['timestamp']) ?><br>
+                                Account connected to <?= htmlspecialchars($deviceInfo['user_agent']) ?>, Since <?= date('d-m-Y H:i:s', $deviceInfo['timestamp']) ?><br>
                                 <small class="text-muted">
                                     Device ID: <?= htmlspecialchars($deviceInfo['device_id']) ?> |
                                     IP: <?= htmlspecialchars($deviceInfo['ip']) ?>
@@ -175,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 <form method="post" onsubmit="return confirm('This will reset all connections and generate new credentials! Continue?')">
                                     <input type="hidden" name="action" value="change_device">
                                     <button type="submit" class="btn btn-warning">
-                                        <i class="fas fa-sync-alt me-2"></i>Change Device
+                                        <i class="fas fa-sync-alt me-2"></i>Disconnect from Device
                                     </button>
                                 </form>
                             <?php else: ?>
