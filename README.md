@@ -2,6 +2,16 @@
 #
     CREATE DATABASE iptv_users;
 
+    CREATE TABLE channels (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        channel_name VARCHAR(255) NOT NULL,
+        stream_url TEXT NOT NULL,
+        tvg_id VARCHAR(100),
+        tvg_logo TEXT,
+        group_title VARCHAR(255)
+    );
+
+        
     CREATE TABLE users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       username VARCHAR(50) UNIQUE NOT NULL,
