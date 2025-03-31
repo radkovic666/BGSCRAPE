@@ -17,12 +17,12 @@ $data = $stmt->fetch();
 
 // Device usage check
 $deviceUsageFile = 'user_device_usage.json';
-$isConnected = false;
+$deviceInfo = null;
 
 if (file_exists($deviceUsageFile)) {
     $deviceUsage = json_decode(file_get_contents($deviceUsageFile), true);
-    if (is_array($deviceUsage) && array_key_exists($data['xtream_username'], $deviceUsage)) {
-        $isConnected = true;
+    if (is_array($deviceUsage) && isset($deviceUsage[$data['xtream_username']])) {
+        $deviceInfo = $deviceUsage[$data['xtream_username']];
     }
 }
 
@@ -153,10 +153,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         </div>
 
                         <!-- Device Status -->
-                        <?php if ($isConnected): ?>
+                        <?php if ($deviceInfo): ?>
                             <div class="alert alert-warning mb-3">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                Active connection detected on another device
+                                Account connected to <?= htmlspecialchars($deviceInfo['user_agent']) ?> since <?= date('d-m-y', $deviceInfo['timestamp']) ?><br>
+                                <small class="text-muted">
+                                    Device ID: <?= htmlspecialchars($deviceInfo['device_id']) ?> |
+                                    IP: <?= htmlspecialchars($deviceInfo['ip']) ?>
+                                </small>
                             </div>
                         <?php else: ?>
                             <div class="alert alert-success mb-3">
@@ -167,11 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                         <!-- Controls -->
                         <div class="d-flex justify-content-between align-items-center">
-                            <?php if ($isConnected): ?>
+                            <?php if ($deviceInfo): ?>
                                 <form method="post" onsubmit="return confirm('This will reset all connections and generate new credentials! Continue?')">
                                     <input type="hidden" name="action" value="change_device">
                                     <button type="submit" class="btn btn-warning">
-                                        <i class="fas fa-sync-alt me-2"></i>Reset Connection
+                                        <i class="fas fa-sync-alt me-2"></i>Change Device
                                     </button>
                                 </form>
                             <?php else: ?>
@@ -193,13 +197,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </div>
 
     <script>
+    // (Keep the same JavaScript copy functionality as original)
     function copyCredentials(button) {
         const text = button.getAttribute('data-value');
         const icon = button.querySelector('i');
         const alertBox = document.getElementById('copiedAlert');
         const alertText = alertBox.querySelector('.alert-text');
 
-        // Fallback method for older browsers
         const legacyCopy = text => {
             const textArea = document.createElement('textarea');
             textArea.value = text;
@@ -218,7 +222,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
         };
 
-        // Modern clipboard API
         const modernCopy = async text => {
             try {
                 await navigator.clipboard.writeText(text);
@@ -228,7 +231,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
         };
 
-        // Main copy handler
         const handleCopy = async () => {
             let success = false;
             
@@ -238,7 +240,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 success = legacyCopy(text);
             }
 
-            // Visual feedback
             if (success) {
                 alertBox.classList.remove('alert-danger');
                 alertBox.classList.add('alert-success');
@@ -253,12 +254,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 alertText.textContent = 'Copy failed! Select text and press Ctrl+C';
             }
 
-            // Show alert
             alertBox.classList.remove('d-none');
             setTimeout(() => {
                 alertBox.classList.add('d-none');
                 
-                // Reset button state
                 if (success) {
                     setTimeout(() => {
                         icon.classList.replace('fa-copy', 'fa-copy');

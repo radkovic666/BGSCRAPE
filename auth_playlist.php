@@ -22,22 +22,43 @@ if (!$user || $user['xtream_password'] !== $password) {
     die("Invalid credentials");
 }
 
-// Device tracking (permanent lock to the first device used)
+// Device tracking
 $current_ip = $_SERVER['REMOTE_ADDR'];
 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $device_id = md5($current_ip . $user_agent);
+$device_name = "Unknown Device";
 
+// Identify device type
+if (strpos($user_agent, 'Android') !== false) {
+    $device_name = 'Android Device';
+} elseif (strpos($user_agent, 'iPhone') !== false) {
+    $device_name = 'iPhone';
+} elseif (strpos($user_agent, 'Windows') !== false) {
+    $device_name = 'Windows PC';
+} elseif (strpos($user_agent, 'Macintosh') !== false) {
+    $device_name = 'Mac';
+} elseif (strpos($user_agent, 'Linux') !== false) {
+    $device_name = 'Linux Device';
+}
+
+// Load existing usage data
 $usage_data = file_exists($usage_file) ? json_decode(file_get_contents($usage_file), true) : [];
 
 if (isset($usage_data[$username])) {
-    // If a device is already registered and it's different, deny access
+    // If device is already registered and it's different, deny access
     if ($usage_data[$username]['device_id'] !== $device_id) {
         http_response_code(403);
         die("Account is locked to another device.");
     }
 } else {
     // Register new device for this user
-    $usage_data[$username] = ['device_id' => $device_id];
+    $usage_data[$username] = [
+        'device_id'   => $device_id,
+        'ip'          => $current_ip,
+        'user_agent'  => $user_agent,
+        'device_name' => $device_name,
+        'timestamp'   => time()
+    ];
     file_put_contents($usage_file, json_encode($usage_data, JSON_PRETTY_PRINT));
 }
 
