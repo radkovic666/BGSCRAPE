@@ -2,7 +2,6 @@
 require 'config.php';
 
 $usage_file = 'user_device_usage.json';
-$token_expiration = 86400; // 24 hours
 
 // Validate parameters
 $username = $_GET['username'] ?? '';
@@ -23,39 +22,24 @@ if (!$user || $user['xtream_password'] !== $password) {
     die("Invalid credentials");
 }
 
-// Device tracking
+// Device tracking (permanent lock to the first device used)
 $current_ip = $_SERVER['REMOTE_ADDR'];
 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $device_id = md5($current_ip . $user_agent);
 
 $usage_data = file_exists($usage_file) ? json_decode(file_get_contents($usage_file), true) : [];
-$current_time = time();
 
-// Check existing usage
 if (isset($usage_data[$username])) {
-    $stored = $usage_data[$username];
-    $time_diff = $current_time - $stored['last_active'];
-
-    // Device changed and session still active
-    if ($stored['device_id'] !== $device_id && $time_diff < $token_expiration) {
+    // If a device is already registered and it's different, deny access
+    if ($usage_data[$username]['device_id'] !== $device_id) {
         http_response_code(403);
-        die("Account is in use on another device.");
+        die("Account is locked to another device.");
     }
-
-    // Update device info
-    $usage_data[$username] = [
-        'device_id' => $device_id,
-        'last_active' => $current_time
-    ];
 } else {
-    // New entry
-    $usage_data[$username] = [
-        'device_id' => $device_id,
-        'last_active' => $current_time
-    ];
+    // Register new device for this user
+    $usage_data[$username] = ['device_id' => $device_id];
+    file_put_contents($usage_file, json_encode($usage_data, JSON_PRETTY_PRINT));
 }
-
-file_put_contents($usage_file, json_encode($usage_data, JSON_PRETTY_PRINT));
 
 // Generate fresh playlist from database
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
