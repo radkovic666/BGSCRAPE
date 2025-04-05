@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <div class="card-body">
                         <div class="alert alert-info">
                             <h5 class="alert-heading">Account Details</h5>
-                                <div class="text-muted">Enjoy! Use your URL's with your favorite IPTV Player. Only 1 device per account !</div>
+                                <div class="text-muted">Enjoy! Use these URLs with your favorite IPTV Player. Only 1 device per account !</div>
                             <hr>
 
                             <!-- Main Credentials -->
@@ -154,14 +154,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <!-- Controls -->
                         <div class="d-flex justify-content-between align-items-center">
                             <?php if ($deviceInfo): ?>
-                                <form method="post" onsubmit="return confirm('This will reset all connections and generate new credentials! Continue?')">
+                                <form method="post" onsubmit="return confirm('This will reset your connection and generate new credentials! Continue?')">
                                     <input type="hidden" name="action" value="change_device">
                                     <button type="submit" class="btn btn-warning">
                                         <i class="fas fa-sync-alt me-2"></i>Disconnect from Device
                                     </button>
                                 </form>
                             <?php else: ?>
-                                <div class="text-muted">Your connection is secure</div>
+                                <div class="text-muted">You are ready to connect to an IPTV app</div>
                             <?php endif; ?>
                             <a href="logout.php" class="btn btn-danger">
                                 <i class="fas fa-sign-out-alt me-2"></i>Logout
