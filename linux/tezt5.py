@@ -17,25 +17,6 @@ ftplog_script_path = os.path.join(script_dir, 'ftplog.py')
 sanitizer_script_path = os.path.join(script_dir, 'sanitizer.py')
 log_file_path = os.path.join(script_dir, 'scrapelog.txt')
 
-# --- Logging Configuration ---
-logger = logging.getLogger("scraper")
-logger.setLevel(logging.INFO)
-
-# Remove existing handlers
-while logger.hasHandlers():
-    logger.removeHandler(logger.handlers[0])
-
-# Create File Handler
-try:
-    file_handler = logging.FileHandler(log_file_path, mode='w')
-except PermissionError:
-    print("Permission denied to write to scrapelog.txt. Exiting.")
-    sys.exit(1)
-
-formatter = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-
 def log_and_print(message):
     print(message)
     logger.info(message)
@@ -63,10 +44,29 @@ def append_additional_urls(file_path):
 
 # --- Main Scraping Loop ---
 while True:
+    # --- Logging Configuration ---
+    logger = logging.getLogger("scraper")
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+        handler.close()
+    
+    # Create new file handler
+    try:
+        file_handler = logging.FileHandler(log_file_path, mode='a')  # Append mode
+    except PermissionError:
+        print("Permission denied to write to scrapelog.txt. Exiting.")
+        sys.exit(1)
+    
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
     clear_screen()
     start_time = time.time()
-
-    logger.info("🚀 Starting new mailsorting job")
+    logger.info("🚀 Starting new Mail sorting job")
 
     urls = [
         "https://www.seir-sanduk.com/?id=hd-bnt-1-hd&pass=33aj3daawtDafra33",
@@ -131,9 +131,7 @@ while True:
         "https://www.seir-sanduk.com/?id=rodina-tv&pass=33aj3daawtDafra33",
         "https://www.seir-sanduk.com/?id=folklor-tv&pass=33aj3daawtDafra33",
         "https://www.seir-sanduk.com/?id=dstv&pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=city-tv&pass=33aj3daawtDafra33",
-
-        
+        "https://www.seir-sanduk.com/?id=city-tv&pass=33aj3daawtDafra33"
     ]
 
     with open(temp_file_path, 'w') as f:
@@ -182,8 +180,6 @@ while True:
     remaining = max(0, 3600 - elapsed)
     next_scrape_time = datetime.now() + timedelta(seconds=remaining)
 
-    #clear_screen()
-
     log_and_print("")
     log_and_print(f"✅ Mail sorting finished in {int(elapsed // 60)}m {int(elapsed % 60)}s")
     log_and_print(f"⏰ Next run scheduled for {next_scrape_time.strftime('%H:%M:%S')}")
@@ -195,6 +191,11 @@ while True:
 
     # Sanitize
     subprocess.run(['sudo', 'python3', sanitizer_script_path])
+
+    # Clean up logger handlers
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
 
     # Sleep until next iteration
     time.sleep(remaining)

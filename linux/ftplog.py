@@ -19,16 +19,49 @@ html_template = """
     <meta charset="UTF-8">
     <title>BGSCRAPE Latest Report</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: black; color: white; }
-        .info { color: green; }
-        .warning { color: orange; }
-        .error { color: red; }
-        .datetime { color: white; }
-        pre { white-space: pre-wrap; word-wrap: break-word; }
+        :root {
+            --dark-bg: #0d1117;
+            --darker-bg: #010409;
+            --dark-border: #30363d;
+            --dark-text: #e6edf3;
+            --accent-blue: #2f81f7;
+            --github-gray: #8b949e;
+        }
+
+        body { 
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background-color: var(--darker-bg); 
+            color: var(--dark-text);
+            margin: 2rem;
+        }
+        
+        h2 {
+            color: #ffffff;
+            border-bottom: 1px solid var(--dark-border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info { color: #2ea043; }  /* GitHub green */
+        .warning { color: #d29922; }  /* GitHub orange */
+        .error { color: #da3633; }  /* GitHub red */
+        .datetime { color: var(--github-gray); }
+        
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: var(--dark-bg);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--dark-border);
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
     </style>
 </head>
 <body>
-    <h2>Report:</h2>
+    <h2>📄 BGSCRAPE Operational Report</h2>
     <pre>
 """
 
