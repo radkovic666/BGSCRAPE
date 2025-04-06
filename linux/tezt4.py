@@ -46,8 +46,8 @@ channel_metadata = {
     #"animalplanet": {"name": "Animal Planet", "tvg_id": "AnimalPlanet", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/animalplanet.png"},
     #"docubox": {"name": "Docubox", "tvg_id": "DocuBox", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/docubox.png"},
     "tlc": {"name": "TLC", "tvg_id": "TLC", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/tlc.png"},
-    "hd-food-network-hd": {"name": "Food Network", "tvg_id": "FoodNetwork", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/tlc.png"},
-    "hd-24-kitchen-hd": {"name": "24Kitchen", "tvg_id": "24kitchen", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/foodnetwork.png"},
+    "hd-food-network-hd": {"name": "Food Network", "tvg_id": "FoodNetwork", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/foodnetwork.png"},
+    "hd-24-kitchen-hd": {"name": "24Kitchen", "tvg_id": "24kitchen", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/24kitchen.png"},
     "hd-travel-channel-hd": {"name": "Travel Channel", "tvg_id": "TravelChannel", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/travelchannel.png"},
     #"viasat_history": {"name": "Viasat History", "tvg_id": "ViasatHistory", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/viasathistory.png"},
     #"viasat_nature": {"name": "Viasat Nature", "tvg_id": "ViasatNature", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/viasatnature.png"},
@@ -144,7 +144,7 @@ def generate_m3u():
     # Write output file
     with open(output_file, "w") as outfile:
         outfile.write('\n'.join(m3u_content))
-    print(f"Successfully created {output_file} with {len(lines)} channels")
+    print(f"Successfully created Parcel with {len(lines)} Envelopes")
 
 # Execute the function
 generate_m3u()

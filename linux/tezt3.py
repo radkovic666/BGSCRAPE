@@ -165,19 +165,20 @@ while True:
             if not success:
                 logger.error(f"❌ Failed to get M3U8 after 10 attempts")
 
+    clear_screen()
     # Append static URLs
     append_additional_urls(temp_file_path)
     log_and_print("📦 Static URLs appended to parcel")
 
     # Run packaging step
-    log_and_print("🧪 Running packaging operator...")
+    log_and_print("🧪 Calling packaging operator to work...")
     subprocess.run(['sudo', 'python3', tezt2_script_path])
 
     elapsed = time.time() - start_time
     remaining = max(0, 3600 - elapsed)
     next_scrape_time = datetime.now() + timedelta(seconds=remaining)
 
-    clear_screen()
+    #clear_screen()
 
     log_and_print("")
     log_and_print(f"✅ Mail sorting finished in {int(elapsed // 60)}m {int(elapsed % 60)}s")

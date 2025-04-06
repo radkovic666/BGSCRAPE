@@ -32,14 +32,14 @@ for file in files_to_copy:
 try:
     response = requests.get("http://localhost/import_playlist.php", timeout=20)
     if response.status_code == 200:
-        print("Database updated successfully.")
+        print("Peyo accomplished his job successfully.")
 
         # Delete playlist.m3u from destination after successful update
         playlist_path = os.path.join(destination_dir, "playlist.m3u")
         if os.path.exists(playlist_path):
             try:
                 os.remove(playlist_path)
-                print(f"Deleted: {playlist_path}")
+                #print(f"Deleted: {playlist_path}")
             except PermissionError:
                 print(f"Permission denied: Cannot delete {playlist_path}. Try running with sudo.")
     else:

@@ -2,10 +2,10 @@ import os
 import shutil
 from pathlib import Path
 
-print("\nApplying sanitizer...")
+print("\nApplying sanitizer after dirty work...")
 
 # List of files to delete in the current directory
-files_to_delete = ["temp.txt", "scrapelog.txt"]
+files_to_delete = ["temp.txt", "scrapelog.txt", "scrapelog.html"]
 
 for file_name in files_to_delete:
     if os.path.exists(file_name):

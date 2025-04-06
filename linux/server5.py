@@ -15,7 +15,7 @@ app = FastAPI()
 
 # Path to tezt3.py in the same directory as the current script
 script_dir = os.path.dirname(os.path.abspath(__file__))
-tezt3_script_path = os.path.join(script_dir, 'tezt3.py')
+tezt3_script_path = os.path.join(script_dir, 'tezt5.py')
 
 # Chromium options arguments
 arguments = [
@@ -78,7 +78,6 @@ async def get_cookies(url: str, retries: int = 10):
         raise HTTPException(status_code=400, detail="Invalid URL")
     try:
         driver = bypass_cloudflare(url, retries, log)
-        time.sleep(1)
         cookies = driver.cookies(as_dict=True)
         user_agent = driver.user_agent
         driver.quit()
@@ -95,7 +94,7 @@ async def get_html(url: str, retries: int = 10):
         raise HTTPException(status_code=400, detail="Invalid URL")
     try:
         driver = bypass_cloudflare(url, retries, log)
-        time.sleep(1)
+        #time.sleep(1)
         html = driver.html
         cookies_json = json.dumps(driver.cookies(as_dict=True))
 
