@@ -30,7 +30,7 @@ for file in files_to_copy:
 
 # Run import_playlist.php to update the database
 try:
-    response = requests.get("http://localhost/import_playlist.php", timeout=20)
+    response = requests.get("http://localhost/import_playlist.php", timeout=60)
     if response.status_code == 200:
         print("Peyo accomplished his job successfully.")
 
