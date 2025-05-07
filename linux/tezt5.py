@@ -1,3 +1,5 @@
+# arabskivestnik H0rnbow12 otustanausta.com
+
 import ctypes
 import re
 import sys
@@ -42,24 +44,36 @@ def append_additional_urls(file_path):
         for url in additional_urls:
             f.write(url + '\n')
 
+def get_updated_pass():
+    try:
+        response = requests.get("https://www.seir-sanduk.com/linkzagledane.php?parola=aeagaDs3AdKaAf2", allow_redirects=True, timeout=10)
+        redirected_url = response.url
+        match = re.search(r'pass=([a-zA-Z0-9]+)', redirected_url)
+        if match:
+            return match.group(1)
+        else:
+            logger.warning("⚠️ No 'pass' parameter found in redirect URL.")
+            return None
+    except Exception as e:
+        logger.error(f"❌ Failed to fetch updated pass: {e}")
+        return None
+
 # --- Main Scraping Loop ---
 while True:
     # --- Logging Configuration ---
     logger = logging.getLogger("scraper")
     logger.setLevel(logging.INFO)
-    
-    # Clear existing handlers
+
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
         handler.close()
-    
-    # Create new file handler
+
     try:
-        file_handler = logging.FileHandler(log_file_path, mode='a')  # Append mode
+        file_handler = logging.FileHandler(log_file_path, mode='a')
     except PermissionError:
         print("Permission denied to write to scrapelog.txt. Exiting.")
         sys.exit(1)
-    
+
     formatter = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -68,71 +82,79 @@ while True:
     start_time = time.time()
     logger.info("🚀 Starting new Mail sorting job")
 
-    urls = [
-        "https://www.seir-sanduk.com/?id=hd-bnt-1-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=bnt-2%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-bnt-3-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=bnt-4%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-btv-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-nova-tv-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=btv-cinema%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-btv-action-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=btv-comedy%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=btv-story%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=diema%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=diema-family%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=kino-nova%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-star-channel-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-star-crime-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-star-life-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-epic-drama-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=axn%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=axn-black%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=axn-white%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-diema-sport-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-diema-sport-2-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-diema-sport-3-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-max-sport-1-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-max-sport-2-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-max-sport-3-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-max-sport-4-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-nova-sport-hd%26pass=33aj3daawtDafra33",        
-        "https://www.seir-sanduk.com/?id=hd-ring-bg-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-eurosport-1-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-eurosport-2-hd%26pass=33aj3daawtDafra33",        
-        "https://www.seir-sanduk.com/?id=hd-discovery-channel-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-nat-geo-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-nat-geo-wild-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=tlc%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-food-network-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-24-kitchen-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-travel-channel-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=cartoon-network%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=disney-channel%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=e-kids%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=nickelodeon%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=nicktoons%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=nick-jr%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=kanal-3%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=evrokom%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-nova-news-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-78-tv-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=bloomberg-tv%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=euronews-bulgaria%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=tv-1%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=bulgaria-on-air%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=vtk%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=skat%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-code-fashion-tv-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=travel-tv%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=hd-planeta-hd%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=planeta-folk%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=tiankov-tv%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=rodina-tv%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=folklor-tv%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=dstv%26pass=33aj3daawtDafra33",
-        "https://www.seir-sanduk.com/?id=city-tv%26pass=33aj3daawtDafra33"
+    # Get the dynamic pass
+    dynamic_pass = get_updated_pass()
+    if not dynamic_pass:
+        log_and_print("❌ Using default pass due to failure.")
+        dynamic_pass = "22kalAdKaAf2l22"  # fallback
+
+    # Base URLs without pass
+    base_urls = [
+        "https://www.seir-sanduk.com/?id=hd-bnt-1-hd",
+        "https://www.seir-sanduk.com/?id=bnt-2",
+        "https://www.seir-sanduk.com/?id=hd-bnt-3-hd",
+        "https://www.seir-sanduk.com/?id=bnt-4",
+        "https://www.seir-sanduk.com/?id=hd-btv-hd",
+        "https://www.seir-sanduk.com/?id=hd-nova-tv-hd",
+        "https://www.seir-sanduk.com/?id=btv-cinema",
+        "https://www.seir-sanduk.com/?id=hd-btv-action-hd",
+        "https://www.seir-sanduk.com/?id=btv-comedy",
+        "https://www.seir-sanduk.com/?id=btv-story",
+        "https://www.seir-sanduk.com/?id=diema",
+        "https://www.seir-sanduk.com/?id=diema-family",
+        "https://www.seir-sanduk.com/?id=kino-nova",
+        "https://www.seir-sanduk.com/?id=hd-star-channel-hd",
+        "https://www.seir-sanduk.com/?id=hd-star-crime-hd",
+        "https://www.seir-sanduk.com/?id=hd-star-life-hd",
+        "https://www.seir-sanduk.com/?id=hd-epic-drama-hd",
+        "https://www.seir-sanduk.com/?id=axn",
+        "https://www.seir-sanduk.com/?id=axn-black",
+        "https://www.seir-sanduk.com/?id=axn-white",
+        "https://www.seir-sanduk.com/?id=hd-diema-sport-hd",
+        "https://www.seir-sanduk.com/?id=hd-diema-sport-2-hd",
+        "https://www.seir-sanduk.com/?id=hd-diema-sport-3-hd",
+        "https://www.seir-sanduk.com/?id=hd-max-sport-1-hd",
+        "https://www.seir-sanduk.com/?id=hd-max-sport-2-hd",
+        "https://www.seir-sanduk.com/?id=hd-max-sport-3-hd",
+        "https://www.seir-sanduk.com/?id=hd-max-sport-4-hd",
+        "https://www.seir-sanduk.com/?id=hd-nova-sport-hd",
+        "https://www.seir-sanduk.com/?id=hd-ring-bg-hd",
+        "https://www.seir-sanduk.com/?id=hd-eurosport-1-hd",
+        "https://www.seir-sanduk.com/?id=hd-eurosport-2-hd",
+        "https://www.seir-sanduk.com/?id=hd-discovery-channel-hd",
+        "https://www.seir-sanduk.com/?id=hd-nat-geo-hd",
+        "https://www.seir-sanduk.com/?id=hd-nat-geo-wild-hd",
+        "https://www.seir-sanduk.com/?id=tlc",
+        "https://www.seir-sanduk.com/?id=hd-food-network-hd",
+        "https://www.seir-sanduk.com/?id=hd-24-kitchen-hd",
+        "https://www.seir-sanduk.com/?id=hd-travel-channel-hd",
+        "https://www.seir-sanduk.com/?id=cartoon-network",
+        "https://www.seir-sanduk.com/?id=disney-channel",
+        "https://www.seir-sanduk.com/?id=e-kids",
+        "https://www.seir-sanduk.com/?id=nickelodeon",
+        "https://www.seir-sanduk.com/?id=nicktoons",
+        "https://www.seir-sanduk.com/?id=nick-jr",
+        "https://www.seir-sanduk.com/?id=kanal-3",
+        "https://www.seir-sanduk.com/?id=evrokom",
+        "https://www.seir-sanduk.com/?id=hd-nova-news-hd",
+        "https://www.seir-sanduk.com/?id=hd-78-tv-hd",
+        "https://www.seir-sanduk.com/?id=bloomberg-tv",
+        "https://www.seir-sanduk.com/?id=euronews-bulgaria",
+        "https://www.seir-sanduk.com/?id=tv-1",
+        "https://www.seir-sanduk.com/?id=bulgaria-on-air",
+        "https://www.seir-sanduk.com/?id=vtk",
+        "https://www.seir-sanduk.com/?id=skat",
+        "https://www.seir-sanduk.com/?id=hd-code-fashion-tv-hd",
+        "https://www.seir-sanduk.com/?id=travel-tv",
+        "https://www.seir-sanduk.com/?id=hd-planeta-hd",
+        "https://www.seir-sanduk.com/?id=planeta-folk",
+        "https://www.seir-sanduk.com/?id=tiankov-tv",
+        "https://www.seir-sanduk.com/?id=rodina-tv",
+        "https://www.seir-sanduk.com/?id=folklor-tv",
+        "https://www.seir-sanduk.com/?id=dstv",
+        "https://www.seir-sanduk.com/?id=city-tv"
     ]
+    urls = [f"{base}%26pass={dynamic_pass}" for base in base_urls]
 
     with open(temp_file_path, 'w') as f:
         for url in urls:
@@ -145,34 +167,30 @@ while True:
                     response.raise_for_status()
                     html = response.text
 
-                    # Regex for finding m3u8 link
                     m3u8_match = re.search(r'(https?://[^\s"\']+\.m3u8[^\s"\']*)', html)
 
                     if m3u8_match:
-                        m3u8_url = m3u8_match.group(1)
-                        m3u8_url = m3u8_url.replace("&amp;", "&")
+                        m3u8_url = m3u8_match.group(1).replace("&amp;", "&")
                         f.write(m3u8_url + '\n')
-                        log_and_print(f"✅ Envelope Found")
+                        log_and_print("✅ Envelope Found")
                         success = True
                     else:
-                        logger.warning(f"❌ No Envelope found")
+                        logger.warning("❌ No Envelope found")
                         retries += 1
                         time.sleep(1)
 
-                except requests.exceptions.RequestException as e:
-                    logger.error(f"⚠️ Error")
+                except requests.exceptions.RequestException:
+                    logger.error("⚠️ Error")
                     retries += 1
                     time.sleep(1)
 
             if not success:
-                logger.error(f"❌ Failed to get Envelope after 10 attempts")
+                logger.error("❌ Failed to get Envelope after 10 attempts")
 
     clear_screen()
-    # Append static URLs
     append_additional_urls(temp_file_path)
     log_and_print("📦 Non-address Envelopes appended to parcel")
 
-    # Run packaging step
     log_and_print("🧪 Calling packaging operator to work...")
     subprocess.run(['sudo', 'python3', tezt2_script_path])
 
@@ -185,17 +203,12 @@ while True:
     log_and_print(f"⏰ Next run scheduled for {next_scrape_time.strftime('%H:%M:%S')}")
     log_and_print("📮 Sending Peyo the Postman on a job...")
 
-    # FTP Upload
     subprocess.run(['sudo', 'python3', ftplog_script_path])
     subprocess.run(['sudo', 'python3', ftp_script_path])
-
-    # Sanitize
     subprocess.run(['sudo', 'python3', sanitizer_script_path])
 
-    # Clean up logger handlers
     for handler in logger.handlers[:]:
         handler.close()
         logger.removeHandler(handler)
 
-    # Sleep until next iteration
     time.sleep(remaining)
