@@ -196,7 +196,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             border-left: 3px solid var(--accent-blue); 
             padding-left: 1rem; 
             margin: 1rem 0; 
-        }        
+        }
+        .security-note {
+            background: rgba(47, 129, 247, 0.1);
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -218,57 +225,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <div class="card-body">
                         <div class="alert alert-info">
                             <h5 class="alert-heading">Account Details</h5>
-                            <div class="text-muted">Enjoy! Use your URL's with your favorite IPTV Player. Only 1 device per account!</div>
+                            <div class="text-muted">Enjoy! Use your URL with your favorite IPTV Player. Only 1 device per account!</div>
                             <hr>
 
-                            <!-- Updated username/password section -->
-                            <div class="row">
-                                <div class="col-12 col-md-6 mb-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong>Username:</strong>
-                                            <div class="font-monospace"><?= htmlspecialchars($data['xtream_username']) ?></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 mb-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong>Password:</strong>
-                                            <div class="font-monospace"><?= htmlspecialchars($data['xtream_password']) ?></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Removed username/password display -->
 
-                            <!-- Updated URL sections -->
+                            <!-- M3U Playlist URL Section -->
                             <div class="url-section">
                                 <h6 class="mb-2"><i class="fas fa-list me-2"></i>M3U Playlist URL</h6>
                                 
-                                <div class="mb-3">
-                                    <div class="url-title"><i class="fas fa-link fa-sm"></i> Original URL</div>
-                                    <div class="d-flex flex-md-row flex-column justify-content-between align-items-md-center url-flex-container">
-                                        <div class="font-monospace me-md-2 mb-md-0 mb-2">
-                                            <?= htmlspecialchars($originalUrl) ?>
-                                        </div>
-                                        <button class="btn copy-btn btn-outline-primary ms-md-2" 
-                                                data-value="<?= htmlspecialchars($originalUrl) ?>"
-                                                onclick="copyCredentials(this)">
-                                            <i class="far fa-copy"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                <!-- Removed Original URL section -->
                                 
                                 <div class="mb-3">
-                                    <div class="url-title"><i class="fas fa-compress-alt fa-sm"></i> Short URL </div>
+                                    <div class="url-title"><i class="fas fa-link fa-sm"></i> Secure Short URL </div>
                                     <div class="d-flex flex-md-row flex-column justify-content-between align-items-md-center url-flex-container">
                                         <div class="font-monospace me-md-2 mb-md-0 mb-2">
                                             <?= htmlspecialchars($shortUrl) ?>
                                         </div>
+                                        <button class="btn copy-btn btn-outline-primary ms-md-2" 
+                                                data-value="<?= htmlspecialchars($shortUrl) ?>"
+                                                onclick="copyCredentials(this)">
+                                            <i class="far fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <div class="security-note text-muted">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        This secured URL handles authentication automatically. Use it directly in your player.
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- EPG Guide URL Section -->
                             <div class="url-section">
                                 <h6 class="mb-2"><i class="fas fa-tv me-2"></i>EPG Guide URL</h6>
                                 <div class="d-flex flex-md-row flex-column justify-content-between align-items-md-center url-flex-container">
