@@ -1,7 +1,7 @@
 <?php
 require 'config.php';
 
-$usage_file = 'user_device_usage.json';
+$device_bindings_file = 'device_bindings.json';
 
 // Validate parameters
 $username = $_GET['username'] ?? '';
@@ -22,59 +22,53 @@ if (!$user || $user['xtream_password'] !== $password) {
     die("Invalid credentials");
 }
 
-// Device tracking
-$current_ip = $_SERVER['REMOTE_ADDR'];
-$user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$device_id = md5($current_ip . $user_agent);
-$device_name = "Unknown Device";
+// Create a unique device fingerprint
+$device_fingerprint = md5(
+    $_SERVER['HTTP_USER_AGENT'] . 
+    $_SERVER['REMOTE_ADDR'] . 
+    (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '') .
+    (isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '')
+);
 
-// Identify device type
-if (strpos($user_agent, 'Android') !== false) {
-    $device_name = 'Android Device';
-} elseif (strpos($user_agent, 'iPhone') !== false) {
-    $device_name = 'iPhone';
-} elseif (strpos($user_agent, 'Windows') !== false) {
-    $device_name = 'Windows PC';
-} elseif (strpos($user_agent, 'Macintosh') !== false) {
-    $device_name = 'Mac';
-} elseif (strpos($user_agent, 'Linux') !== false) {
-    $device_name = 'Linux Device';
-}
+// Create a URL identifier
+$url_identifier = md5($username . $password);
 
-// Load existing usage data
-$usage_data = file_exists($usage_file) ? json_decode(file_get_contents($usage_file), true) : [];
+// Load device bindings
+$device_bindings = file_exists($device_bindings_file) ? 
+    json_decode(file_get_contents($device_bindings_file), true) : [];
 
-if (isset($usage_data[$username])) {
-    // If device is already registered and it's different, deny access
-    if ($usage_data[$username]['device_id'] !== $device_id) {
+// Check if this URL is already bound to a device
+if (isset($device_bindings[$url_identifier])) {
+    // If bound to a different device, deny access
+    if ($device_bindings[$url_identifier]['device_fingerprint'] !== $device_fingerprint) {
         http_response_code(403);
-        die("Account is locked to another device.");
+        die("This URL is already bound to another device. Please use the original device or generate a new URL from your dashboard.");
     }
+    
+    // Update timestamp for the same device
+    $device_bindings[$url_identifier]['last_used'] = time();
 } else {
-    // Register new device for this user
-    $usage_data[$username] = [
-        'device_id'   => $device_id,
-        'ip'          => $current_ip,
-        'user_agent'  => $user_agent,
-        'device_name' => $device_name,
-        'timestamp'   => time()
+    // Bind this URL to the current device
+    $device_bindings[$url_identifier] = [
+        'device_fingerprint' => $device_fingerprint,
+        'username' => $username,
+        'ip_address' => $_SERVER['REMOTE_ADDR'],
+        'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+        'bound_at' => time(),
+        'last_used' => time()
     ];
-    file_put_contents($usage_file, json_encode($usage_data, JSON_PRETTY_PRINT));
 }
 
-// Generate fresh playlist from database
+// Save device bindings
+file_put_contents($device_bindings_file, json_encode($device_bindings, JSON_PRETTY_PRINT));
+
+// Serve the physical playlist.m3u file after auth passes
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
 header("Content-Type: application/x-mpegurl");
-echo "#EXTM3U\n";
 
-$stmt = $pdo->prepare("SELECT channel_name, stream_url, tvg_id, tvg_logo, group_title FROM channels ORDER BY id ASC");
-$stmt->execute();
-$channels = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Output the physical file contents
+readfile('playlist.m3u');
 
-foreach ($channels as $channel) {
-    echo "#EXTINF:-1 tvg-id=\"{$channel['tvg_id']}\" tvg-logo=\"{$channel['tvg_logo']}\" group-title=\"{$channel['group_title']}\",{$channel['channel_name']}\n";
-    echo "{$channel['stream_url']}\n";
-}
 ?>
