@@ -14,7 +14,7 @@ $ip = $_SERVER['REMOTE_ADDR'];
 $stmt = $pdo->prepare("SELECT id FROM users WHERE ip_address = ?");
 $stmt->execute([$ip]);
 if ($stmt->rowCount() > 0) {
-    $error = "Only one registration allowed per IP address!";
+    $error = "Вече си регистриран на това устройство! ";
 }
 
 if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -84,7 +84,7 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                 <div class="card shadow-2-strong">
                     <div class="card-body p-5 text-center">
-                        <h3 class="mb-4">Create Account</h3>
+                        <h3 class="mb-4">Регистрирай акаунт</h3>
                         <?php if ($error): ?>
                             <div class="alert alert-danger"><?= $error ?></div>
                         <?php endif; ?>
@@ -92,24 +92,24 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control" name="username" id="username" 
                                        placeholder="Username" required pattern="[a-zA-Z0-9_]+">
-                                <label for="username">Username</label>
-                                <small class="form-text text-muted">Letters, numbers and underscores only</small>
+                                <label for="username">Потребителско име</label>
+                                <small class="form-text text-muted">Разрешени са само букви и числа</small>
                             </div>
                             <div class="form-floating mb-3">
                                 <input type="password" class="form-control" name="password" id="password" 
                                        placeholder="Password" required minlength="8">
-                                <label for="password">Password</label>
-                                <small class="form-text text-muted">Minimum 8 characters</small>
+                                <label for="password">Парола</label>
+                                <small class="form-text text-muted">Минимум 8 символа</small>
                             </div>
                             <div class="form-floating mb-4">
                                 <input type="password" class="form-control" name="confirm_password" 
                                        id="confirm_password" placeholder="Confirm Password" required>
-                                <label for="confirm_password">Confirm Password</label>
+                                <label for="confirm_password">Потвърди паролата</label>
                             </div>
-                            <button type="submit" class="btn btn-success btn-lg btn-block w-100">Create Account</button>
+                            <button type="submit" class="btn btn-success btn-lg btn-block w-100">Готово</button>
                         </form>
                         <hr class="my-4">
-                        <p class="mb-0">Already have an account? <a href="index.php" class="text-success">Login here</a></p>
+                        <p class="mb-0">Ако вече имаш регистрация <a href="index.php" class="text-success">логни се оттук</a></p>
                     </div>
                 </div>
             </div>

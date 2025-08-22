@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: dashboard.php");
             exit();
         } else {
-            $error = "Invalid username or password!";
+            $error = "Невалидно потребителско име или парола!";
         }
     } else {
         $error = "Please fill in all fields!";
@@ -53,23 +53,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
                 <div class="card shadow-2-strong">
                     <div class="card-body p-5 text-center">
-                        <h3 class="mb-4">IPTV Service Login</h3>
+                        <h3 class="mb-4">Добре дошъл в Nyama Fun</h3>
                         <?php if ($error): ?>
                             <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                         <?php endif; ?>
                         <form method="post">
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control" name="username" id="username" placeholder="Username" required>
-                                <label for="username">Username</label>
+                                <label for="username">Потребителско име</label>
                             </div>
                             <div class="form-floating mb-4">
                                 <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
-                                <label for="password">Password</label>
+                                <label for="password">Парола</label>
                             </div>
-                            <button class="btn btn-primary btn-lg btn-block w-100" type="submit">Login</button>
+                            <button class="btn btn-primary btn-lg btn-block w-100" type="submit">Влез</button>
                         </form>
                         <hr class="my-4">
-                        <p class="mb-0">Don't have an account? <a href="register.php" class="text-primary">Register here</a></p>
+                        <p class="mb-0">Ако нямаш регистрация, <a href="register.php" class="text-primary">направи го оттук</a></p>
                     </div>
                 </div>
             </div>

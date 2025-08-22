@@ -1,74 +1,66 @@
 <?php
-require 'config.php';
+// One-device-at-a-time binding
 
-$device_bindings_file = 'device_bindings.json';
+// ==== CONFIG ====
+$playlistFile = __DIR__ . "/playlist.m3u";   // physical playlist
+$sessionsFile = __DIR__ . "/sessions.json";  // temp sessions storage
+$timeout      = 31556926; // seconds of inactivity before freeing slot (1 year)
+// ===============
 
-// Validate parameters
+// Load query params
 $username = $_GET['username'] ?? '';
 $password = $_GET['password'] ?? '';
 
 if (empty($username) || empty($password)) {
-    http_response_code(403);
-    die("Access denied. Credentials required.");
+    header("HTTP/1.1 400 Bad Request");
+    exit("Missing credentials.");
 }
 
-// Authenticate user
-$stmt = $pdo->prepare("SELECT xtream_password FROM xtream_codes WHERE xtream_username = ?");
-$stmt->execute([$username]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+// Unique account key
+$accountKey = md5($username . ":" . $password);
 
-if (!$user || $user['xtream_password'] !== $password) {
-    http_response_code(403);
-    die("Invalid credentials");
+// Device fingerprint
+$clientIp  = $_SERVER['REMOTE_ADDR'];
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$fingerprint = md5($clientIp . $userAgent);
+
+// Load existing sessions
+$sessions = [];
+if (file_exists($sessionsFile)) {
+    $sessions = json_decode(file_get_contents($sessionsFile), true) ?? [];
 }
 
-// Create a unique device fingerprint
-$device_fingerprint = md5(
-    $_SERVER['HTTP_USER_AGENT'] . 
-    $_SERVER['REMOTE_ADDR'] . 
-    (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '') .
-    (isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '')
-);
+// Check if session exists
+$now = time();
+if (isset($sessions[$accountKey])) {
+    $session = $sessions[$accountKey];
 
-// Create a URL identifier
-$url_identifier = md5($username . $password);
-
-// Load device bindings
-$device_bindings = file_exists($device_bindings_file) ? 
-    json_decode(file_get_contents($device_bindings_file), true) : [];
-
-// Check if this URL is already bound to a device
-if (isset($device_bindings[$url_identifier])) {
-    // If bound to a different device, deny access
-    if ($device_bindings[$url_identifier]['device_fingerprint'] !== $device_fingerprint) {
-        http_response_code(403);
-        die("This URL is already bound to another device. Please use the original device or generate a new URL from your dashboard.");
+    // If session expired -> free slot
+    if ($now - $session['last_seen'] > $timeout) {
+        unset($sessions[$accountKey]);
+    } else {
+        // If another device is using it now -> block
+        if ($session['fingerprint'] !== $fingerprint) {
+            header("HTTP/1.1 403 Forbidden");
+            exit("This playlist is currently in use on another device.");
+        }
     }
-    
-    // Update timestamp for the same device
-    $device_bindings[$url_identifier]['last_used'] = time();
-} else {
-    // Bind this URL to the current device
-    $device_bindings[$url_identifier] = [
-        'device_fingerprint' => $device_fingerprint,
-        'username' => $username,
-        'ip_address' => $_SERVER['REMOTE_ADDR'],
-        'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-        'bound_at' => time(),
-        'last_used' => time()
-    ];
 }
 
-// Save device bindings
-file_put_contents($device_bindings_file, json_encode($device_bindings, JSON_PRETTY_PRINT));
+// Register/update session
+$sessions[$accountKey] = [
+    "fingerprint" => $fingerprint,
+    "ip" => $clientIp,
+    "ua" => $userAgent,
+    "last_seen" => $now
+];
+file_put_contents($sessionsFile, json_encode($sessions, JSON_PRETTY_PRINT));
 
 // Serve the physical playlist.m3u file after auth passes
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
-header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
+header("Expires: 0");
 header("Content-Type: application/x-mpegurl");
-
-// Output the physical file contents
-readfile('playlist.m3u');
-
+readfile($playlistFile);
+exit;
 ?>

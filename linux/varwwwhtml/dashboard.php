@@ -22,14 +22,31 @@ if (!$shortUrl) {
     $shortUrl = $originalUrl; // Fallback to original URL if shortening fails
 }
 
-// Device usage check
-$deviceUsageFile = 'user_device_usage.json';
-$deviceInfo = null;
+// Check if user is currently watching based on sessions.json
+$isWatching = false;
+$watchingInfo = null;
+$sessions_file = 'sessions.json';
 
-if (file_exists($deviceUsageFile)) {
-    $deviceUsage = json_decode(file_get_contents($deviceUsageFile), true);
-    if (is_array($deviceUsage) && isset($deviceUsage[$data['xtream_username']])) {
-        $deviceInfo = $deviceUsage[$data['xtream_username']];
+if (file_exists($sessions_file)) {
+    $sessions = json_decode(file_get_contents($sessions_file), true);
+    $currentTime = time();
+    
+    // Create a unique identifier for this user's playlist (same as in auth_playlist.php)
+    $accountKey = md5($data['xtream_username'] . ':' . $data['xtream_password']);
+    
+    // Check if this user has an active session
+    if (isset($sessions[$accountKey])) {
+        $session = $sessions[$accountKey];
+        
+        // Check if session was active in the last 120 seconds (matching auth_playlist.php timeout)
+        if ($currentTime - $session['last_seen'] <= 31556926) { //change big number to 120 if needed
+            $isWatching = true;
+            $watchingInfo = $session;
+        } else {
+            // Session has expired, remove it from the sessions file
+            unset($sessions[$accountKey]);
+            file_put_contents($sessions_file, json_encode($sessions, JSON_PRETTY_PRINT));
+        }
     }
 }
 
@@ -43,25 +60,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
     
     if (!password_verify($_POST['password'], $data['password'])) {
-        $_SESSION['error'] = 'Incorrect password!';
+        $_SESSION['error'] = 'Грешна парола!';
         header("Location: dashboard.php");
         exit();
     }
 
-    // Remove device entry
-    if (file_exists($deviceUsageFile)) {
-        $deviceUsage = json_decode(file_get_contents($deviceUsageFile), true);
-        if (is_array($deviceUsage) && isset($deviceUsage[$data['xtream_username']])) {
-            unset($deviceUsage[$data['xtream_username']]);
-            file_put_contents($deviceUsageFile, json_encode($deviceUsage));
+    // Remove any existing session for this user
+    if (file_exists($sessions_file)) {
+        $sessions = json_decode(file_get_contents($sessions_file), true);
+        $accountKey = md5($data['xtream_username'] . ':' . $data['xtream_password']);
+        
+        if (isset($sessions[$accountKey])) {
+            unset($sessions[$accountKey]);
+            file_put_contents($sessions_file, json_encode($sessions, JSON_PRETTY_PRINT));
         }
     }
 
-    $newUsername = $data['username'];
+    // Generate new credentials to create a new URL
     $newPassword = bin2hex(random_bytes(16));
-
-    $updateStmt = $pdo->prepare("UPDATE xtream_codes SET xtream_username = ?, xtream_password = ? WHERE user_id = ?");
-    $updateStmt->execute([$newUsername, $newPassword, $_SESSION['user_id']]);
+    $updateStmt = $pdo->prepare("UPDATE xtream_codes SET xtream_password = ? WHERE user_id = ?");
+    $updateStmt->execute([$newPassword, $_SESSION['user_id']]);
 
     header("Location: dashboard.php");
     exit();
@@ -204,6 +222,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             margin-top: 10px;
             font-size: 0.85rem;
         }
+        
+        .watching-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .watching-now {
+            background-color: rgba(240, 183, 47, 0.2);
+            color: #f0b72f;
+            border: 1px solid rgba(240, 183, 47, 0.3);
+        }
+        
+        .not-watching {
+            background-color: rgba(46, 160, 67, 0.2);
+            color: #2ea043;
+            border: 1px solid rgba(46, 160, 67, 0.3);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .watching-dot {
+            background-color: #f0b72f;
+            box-shadow: 0 0 6px rgba(240, 183, 47, 0.5);
+        }
+        
+        .not-watching-dot {
+            background-color: #2ea043;
+            box-shadow: 0 0 6px rgba(46, 160, 67, 0.5);
+        }
+        
+        .watching-info {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(240, 183, 47, 0.1);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #e6edf3 !important;
+        }
+        
+        .watching-info strong {
+            color: #ffffff !important;
+        }
+        
+        .change-device-form {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(47, 129, 247, 0.1);
+            border-radius: 4px;
+            color: #e6edf3 !important; /* White text for the form */
+        }
+        
+        .change-device-form h5 {
+            color: #ffffff !important; /* White text for the heading */
+        }
+        
+        .change-device-form .form-control {
+            max-width: 250px; /* Smaller input box */
+        }
     </style>
 </head>
 <body>
@@ -220,24 +306,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="col-md-10">
                 <div class="card shadow">
                     <div class="card-header">
-                        <h4 class="mb-0">Welcome, <?= htmlspecialchars($data['username']) ?>!</h4>
+                        <h4 class="mb-0">Здравей, <?= htmlspecialchars($data['username']) ?>!
+                            <span class="watching-status <?= $isWatching ? 'watching-now' : 'not-watching' ?>">
+                                <span class="status-dot <?= $isWatching ? 'watching-dot' : 'not-watching-dot' ?>"></span>
+                                <?= $isWatching ? 'Заключен към устройство' : 'Не е заключен' ?>
+                            </span>
+                        </h4>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <h5 class="alert-heading">Account Details</h5>
-                            <div class="text-muted">Enjoy! Use your URL with your favorite IPTV Player. Only 1 device per account!</div>
+                        <?php if ($isWatching && $watchingInfo): ?>
+                        <div class="watching-info">
+                            <i class="fas fa-tv me-1"></i>
+                            <strong>Активна сесия:</strong><br>
+                            Устройство: <?= htmlspecialchars($watchingInfo['ua']) ?><br>
+                            IP адрес: <?= htmlspecialchars($watchingInfo['ip']) ?><br>
+                            Последна активност: <?= date('Y-m-d H:i:s', $watchingInfo['last_seen']) ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <div class="alert alert-info mt-3">
+                            <h5 class="alert-heading">Детайли за акаунта:</h5>
+                            <div class="text-muted">Използвай линковете в любимия ти IPTV плеър и се наслаждавай на безплатна българска телевизия.
+                            </div>
                             <hr>
-
-                            <!-- Removed username/password display -->
 
                             <!-- M3U Playlist URL Section -->
                             <div class="url-section">
-                                <h6 class="mb-2"><i class="fas fa-list me-2"></i>M3U Playlist URL</h6>
-                                
-                                <!-- Removed Original URL section -->
+                                <h6 class="mb-2"><i class="fas fa-list me-2"></i>Плейлист M3U URL</h6>
                                 
                                 <div class="mb-3">
-                                    <div class="url-title"><i class="fas fa-link fa-sm"></i> Secure Short URL </div>
                                     <div class="d-flex flex-md-row flex-column justify-content-between align-items-md-center url-flex-container">
                                         <div class="font-monospace me-md-2 mb-md-0 mb-2">
                                             <?= htmlspecialchars($shortUrl) ?>
@@ -248,86 +345,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                             <i class="far fa-copy"></i>
                                         </button>
                                     </div>
-                                    <div class="security-note text-muted">
-                                        <i class="fas fa-shield-alt me-1"></i>
-                                        This secured URL handles authentication automatically. Use it directly in your player.
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- EPG Guide URL Section -->
                             <div class="url-section">
-                                <h6 class="mb-2"><i class="fas fa-tv me-2"></i>EPG Guide URL</h6>
+                                <h6 class="mb-2"><i class="fas fa-tv me-2"></i>EPG програма URL</h6>
                                 <div class="d-flex flex-md-row flex-column justify-content-between align-items-md-center url-flex-container">
                                     <div class="font-monospace me-md-2 mb-md-0 mb-2">
-                                        http://epg.cloudns.org/dl.php
+                                        https://is.gd/tvbgepg
                                     </div>
                                     <button class="btn copy-btn btn-outline-primary ms-md-2" 
-                                            data-value="http://epg.cloudns.org/dl.php"
+                                            data-value="https://is.gd/tvbgepg"
                                             onclick="copyCredentials(this)">
                                         <i class="far fa-copy"></i>
                                     </button>
                                 </div>
+                                <div class="security-note text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    Всички линкове са проверени и криптирани.
+                                </div>
                             </div>
                         </div>
 
-
-                        <?php if ($deviceInfo): ?>
-                            <div class="alert alert-warning mb-3">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                Account connected to <?= htmlspecialchars($deviceInfo['user_agent']) ?>, Since <?= date('d-m-Y H:i:s', $deviceInfo['timestamp']) ?><br>
-                                <small class="text-muted">
-                                    Device ID: <?= htmlspecialchars($deviceInfo['device_id']) ?> |
-                                    IP: <?= htmlspecialchars($deviceInfo['ip']) ?>
-                                </small>
-                            </div>
-                        <?php else: ?>
-                            <div class="alert alert-success mb-3">
-                                <i class="fas fa-check-circle me-2"></i>
-                                No active connections
-                            </div>
+                        <!-- Change Device Form - Only show when account is locked to a device -->
+                        <?php if ($isWatching): ?>
+                        <div class="change-device-form">
+                            <h5><i class="fas fa-sync-alt me-2"></i>Смяна на устройство</h5>
+                            <p class="text-muted">Ако искаш да смениш устройството, от което гледаш, въведи паролата на твоя акаунт и натисни бутона отдолу.</p>
+                            <form method="POST" action="dashboard.php">
+                                <input type="hidden" name="action" value="change_device">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Парола</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-sync-alt me-2"></i>Смени устройство
+                                </button>
+                            </form>
+                        </div>
                         <?php endif; ?>
 
-                        <div class="d-flex justify-content-between align-items-center">
-                            <?php if ($deviceInfo): ?>
-                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#passwordModal">
-                                    <i class="fas fa-sync-alt me-2"></i>Disconnect from Device
-                                </button>
-                            <?php else: ?>
-                                <div class="text-muted">You can now connect to a device</div>
-                            <?php endif; ?>
+                        <div class="mt-3">
                             <a href="logout.php" class="btn btn-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                <i class="fas fa-sign-out-alt me-2"></i>Изход
                             </a>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Password Confirmation Modal -->
-        <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content bg-dark text-light">
-                    <div class="modal-header border-secondary">
-                        <h5 class="modal-title" id="passwordModalLabel">Confirm Account Password</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post">
-                        <div class="modal-body">
-                            <p>For security reasons, please enter your account password to disconnect the device:</p>
-                            <input type="hidden" name="action" value="change_device">
-                            <div class="mb-3">
-                                <label for="passwordInput" class="form-label">Account Password</label>
-                                <input type="password" class="form-control bg-dark text-light border-secondary" 
-                                       id="passwordInput" name="password" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer border-secondary">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-warning">Confirm Disconnect</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -335,7 +399,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     <div id="copiedAlert" class="copied-alert alert alert-success d-none">
         <i class="fas fa-check-circle me-2"></i>
-        <span class="alert-text">Copied to clipboard!</span>
+        <span class="alert-text">Копиран!</span>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -385,7 +449,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             if (success) {
                 alertBox.classList.remove('alert-danger');
                 alertBox.classList.add('alert-success');
-                alertText.textContent = 'Copied to clipboard!';
+                alertText.textContent = 'URL-a е копиран !';
                 
                 button.classList.add('btn-success');
                 button.classList.remove('btn-outline-primary');
