@@ -1,10 +1,8 @@
 <?php
-// One-device-at-a-time binding
-
 // ==== CONFIG ====
 $playlistFile = __DIR__ . "/playlist.m3u";   // physical playlist
 $sessionsFile = __DIR__ . "/sessions.json";  // temp sessions storage
-$timeout      = 31556926; // seconds of inactivity before freeing slot (1 year)
+$timeout      = 31556926; // inactivity timeout (1 year)
 // ===============
 
 // Load query params
@@ -19,10 +17,9 @@ if (empty($username) || empty($password)) {
 // Unique account key
 $accountKey = md5($username . ":" . $password);
 
-// Device fingerprint
-$clientIp  = $_SERVER['REMOTE_ADDR'];
-$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$fingerprint = md5($clientIp . $userAgent);
+// Device fingerprint (do NOT include IP, so same LAN users don’t conflict)
+$userAgent  = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$fingerprint = md5($accountKey . "|" . $userAgent);
 
 // Load existing sessions
 $sessions = [];
@@ -30,33 +27,45 @@ if (file_exists($sessionsFile)) {
     $sessions = json_decode(file_get_contents($sessionsFile), true) ?? [];
 }
 
-// Check if session exists
 $now = time();
-if (isset($sessions[$accountKey])) {
-    $session = $sessions[$accountKey];
 
-    // If session expired -> free slot
+// Cleanup expired sessions
+foreach ($sessions as $key => $session) {
     if ($now - $session['last_seen'] > $timeout) {
-        unset($sessions[$accountKey]);
-    } else {
-        // If another device is using it now -> block
-        if ($session['fingerprint'] !== $fingerprint) {
-            header("HTTP/1.1 403 Forbidden");
-            exit("This playlist is currently in use on another device.");
-        }
+        unset($sessions[$key]);
     }
 }
 
-// Register/update session
-$sessions[$accountKey] = [
-    "fingerprint" => $fingerprint,
-    "ip" => $clientIp,
-    "ua" => $userAgent,
-    "last_seen" => $now
-];
+// Find or create session for this fingerprint
+if (isset($sessions[$accountKey])) {
+    $session = $sessions[$accountKey];
+
+    // If same fingerprint → just refresh last_seen
+    if ($session['fingerprint'] === $fingerprint) {
+        $sessions[$accountKey]['last_seen'] = $now;
+        $sessions[$accountKey]['ua']        = $userAgent;
+    } else {
+        // Different device trying to use same account → allow parallel but separate session
+        // Key off fingerprint instead of single account key
+        $sessions[$accountKey . "_" . substr($fingerprint, 0, 8)] = [
+            "fingerprint" => $fingerprint,
+            "ua"          => $userAgent,
+            "last_seen"   => $now
+        ];
+    }
+} else {
+    // First time this account is used → create session
+    $sessions[$accountKey] = [
+        "fingerprint" => $fingerprint,
+        "ua"          => $userAgent,
+        "last_seen"   => $now
+    ];
+}
+
+// Save sessions.json
 file_put_contents($sessionsFile, json_encode($sessions, JSON_PRETTY_PRINT));
 
-// Serve the physical playlist.m3u file after auth passes
+// Serve playlist
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");

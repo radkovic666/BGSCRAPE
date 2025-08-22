@@ -45,15 +45,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .card {
             border-radius: 1rem;
         }
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            color: white;
+            text-align: center;
+            font-size: 10px;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        @media (min-width: 768px) {
+            .ascii-art {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body class="gradient-custom vh-100">
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="ascii-art">
+    )      )            *              (              ) 
+ ( /(   ( /(   (      (  `     (       )\ )        ( /( 
+ )\())  )\())  )\     )\))(    )\     (()/(    (   )\())
+((_)\  ((_)\((((_)(  ((_)()\((((_)(    /(_))   )\ ((_)\ 
+ _((_)__ ((_))\ _ )\ (_()((_))\ _ )\  (_))_|_ ((_) _((_)
+| \| |\ \ / /(_)_\(_)|  \/  |(_)_\(_) | |_ | | | || \| |
+| .` | \ V /  / _ \  | |\/| | / _ \   | __|| |_| || .` |
+|_|\_|  |_|  /_/ \_\ |_|  |_|/_/ \_\  |_|   \___/ |_|\_|
+
+Няма пълно щастие !
+                </div>
                 <div class="card shadow-2-strong">
                     <div class="card-body p-5 text-center">
-                        <h3 class="mb-4">Добре дошъл в Nyama Fun</h3>
+                        <h3 class="mb-4">Добре дошъл</h3>
                         <?php if ($error): ?>
                             <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                         <?php endif; ?>

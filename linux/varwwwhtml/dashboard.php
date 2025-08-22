@@ -290,6 +290,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         .change-device-form .form-control {
             max-width: 250px; /* Smaller input box */
         }
+        
+        /* ASCII Art Styling */
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            color: white;
+            text-align: center;
+            font-size: 10px;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        @media (min-width: 768px) {
+            .ascii-art {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -304,12 +322,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
         <div class="row justify-content-center">
             <div class="col-md-10">
+                <!-- ASCII Art Header -->
+                <div class="ascii-art">
+    )      )            *              (              ) 
+ ( /(   ( /(   (      (  `     (       )\ )        ( /( 
+ )\())  )\())  )\     )\))(    )\     (()/(    (   )\())
+((_)\  ((_)\((((_)(  ((_)()\((((_)(    /(_))   )\ ((_)\ 
+ _((_)__ ((_))\ _ )\ (_()((_))\ _ )\  (_))_|_ ((_) _((_)
+| \| |\ \ / /(_)_\(_)|  \/  |(_)_\(_) | |_ | | | || \| |
+| .` | \ V /  / _ \  | |\/| | / _ \   | __|| |_| || .` |
+|_|\_|  |_|  /_/ \_\ |_|  |_|/_/ \_\  |_|   \___/ |_|\_|
+
+Няма пълно щастие !
+                </div>
+                
                 <div class="card shadow">
                     <div class="card-header">
                         <h4 class="mb-0">Здравей, <?= htmlspecialchars($data['username']) ?>!
                             <span class="watching-status <?= $isWatching ? 'watching-now' : 'not-watching' ?>">
                                 <span class="status-dot <?= $isWatching ? 'watching-dot' : 'not-watching-dot' ?>"></span>
-                                <?= $isWatching ? 'Заключен към устройство' : 'Не е заключен' ?>
+                                <?= $isWatching ? 'Заключен към устройство' : 'Не е заключен към устройство' ?>
                             </span>
                         </h4>
                     </div>
@@ -319,7 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <i class="fas fa-tv me-1"></i>
                             <strong>Активна сесия:</strong><br>
                             Устройство: <?= htmlspecialchars($watchingInfo['ua']) ?><br>
-                            IP адрес: <?= htmlspecialchars($watchingInfo['ip']) ?><br>
+                            <!--IP адрес: <?= htmlspecialchars($watchingInfo['ip']) ?><br>-->
                             Последна активност: <?= date('Y-m-d H:i:s', $watchingInfo['last_seen']) ?>
                         </div>
                         <?php endif; ?>
