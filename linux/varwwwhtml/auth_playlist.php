@@ -1,8 +1,8 @@
 <?php
 // ==== CONFIG ====
-$playlistFile = __DIR__ . "/playlist.m3u";   // physical playlist
-$sessionsFile = __DIR__ . "/sessions.json";  // temp sessions storage
-$timeout      = 31556926; // inactivity timeout (1 year)
+$playlistFile = __DIR__ . "/playlist.m3u";
+$sessionsFile = __DIR__ . "/sessions.json";
+$timeout = 31556926; // 1 year timeout
 // ===============
 
 // Load query params
@@ -14,11 +14,11 @@ if (empty($username) || empty($password)) {
     exit("Missing credentials.");
 }
 
-// Unique account key
+// Create unique account identifier
 $accountKey = md5($username . ":" . $password);
 
-// Device fingerprint (do NOT include IP, so same LAN users don’t conflict)
-$userAgent  = $_SERVER['HTTP_USER_AGENT'] ?? '';
+// Create device fingerprint (username+password+user agent)
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $fingerprint = md5($accountKey . "|" . $userAgent);
 
 // Load existing sessions
@@ -36,36 +36,33 @@ foreach ($sessions as $key => $session) {
     }
 }
 
-// Find or create session for this fingerprint
+// Check if this account already has a device binding
 if (isset($sessions[$accountKey])) {
     $session = $sessions[$accountKey];
-
-    // If same fingerprint → just refresh last_seen
+    
+    // If same device → refresh last_seen
     if ($session['fingerprint'] === $fingerprint) {
         $sessions[$accountKey]['last_seen'] = $now;
-        $sessions[$accountKey]['ua']        = $userAgent;
     } else {
-        // Different device trying to use same account → allow parallel but separate session
-        // Key off fingerprint instead of single account key
-        $sessions[$accountKey . "_" . substr($fingerprint, 0, 8)] = [
-            "fingerprint" => $fingerprint,
-            "ua"          => $userAgent,
-            "last_seen"   => $now
-        ];
+        // Different device → BLOCK access
+        header("HTTP/1.1 403 Forbidden");
+        exit("This playlist is locked to another device. Please use the original device or contact support to reset your device binding.");
     }
 } else {
-    // First time this account is used → create session
+    // First time this account is used → create device binding
     $sessions[$accountKey] = [
         "fingerprint" => $fingerprint,
-        "ua"          => $userAgent,
-        "last_seen"   => $now
+        "ua" => $userAgent,
+        "last_seen" => $now,
+        "ip" => $_SERVER['REMOTE_ADDR'],
+        "created" => $now
     ];
 }
 
-// Save sessions.json
+// Save sessions
 file_put_contents($sessionsFile, json_encode($sessions, JSON_PRETTY_PRINT));
 
-// Serve playlist
+// Serve playlist only if device is authorized
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");

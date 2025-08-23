@@ -65,13 +65,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         exit();
     }
 
-    // Remove any existing session for this user
+    // Remove device binding for the old credentials
+    $sessions_file = 'sessions.json';
     if (file_exists($sessions_file)) {
         $sessions = json_decode(file_get_contents($sessions_file), true);
-        $accountKey = md5($data['xtream_username'] . ':' . $data['xtream_password']);
         
-        if (isset($sessions[$accountKey])) {
-            unset($sessions[$accountKey]);
+        // Create the old account key
+        $oldAccountKey = md5($data['xtream_username'] . ':' . $data['xtream_password']);
+        
+        // Remove the old session
+        if (isset($sessions[$oldAccountKey])) {
+            unset($sessions[$oldAccountKey]);
             file_put_contents($sessions_file, json_encode($sessions, JSON_PRETTY_PRINT));
         }
     }

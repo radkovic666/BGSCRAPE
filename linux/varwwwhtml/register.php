@@ -32,7 +32,6 @@ if ($rateData && $rateData['attempt_count'] >= 5) {
 $num1 = rand(1, 10);
 $num2 = rand(1, 10);
 $mathAnswer = $num1 + $num2;
-$_SESSION['math_answer'] = $mathAnswer; // Store in session for validation
 
 if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify honeypot field
@@ -46,6 +45,7 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = trim($_POST['password']);
         $confirm = trim($_POST['confirm_password']);
         $userMathAnswer = (int)$_POST['math_answer'];
+        $expectedAnswer = (int)$_POST['expected_answer'];
         
         // Log the registration attempt
         $stmt = $pdo->prepare("INSERT INTO registration_attempts (ip_address) VALUES (?)");
@@ -58,7 +58,7 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($password !== $confirm) $errors[] = "Паролите не съвпадат";
         if (strlen($password) < 8) $errors[] = "Паролата трябва да е поне 8 символа";
         if (!preg_match('/^[a-z0-9_]+$/i', $username)) $errors[] = "Потребителското име може да съдържа само букви, цифри и долна черта";
-        if ($userMathAnswer !== $_SESSION['math_answer']) $errors[] = "Грешен отговор на математическия въпрос";
+        if ($userMathAnswer !== $expectedAnswer) $errors[] = "Грешен отговор на математическия въпрос";
         
         // Check username length
         if (strlen($username) < 3) $errors[] = "Потребителското име трябва да е поне 3 символа";
@@ -170,6 +170,9 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="honeypot">Не попълвайте това поле</label>
                                 <input type="text" id="honeypot" name="honeypot" tabindex="-1">
                             </div>
+                            
+                            <!-- Hidden field to store the expected answer -->
+                            <input type="hidden" name="expected_answer" value="<?= $mathAnswer ?>">
                             
                             <div class="form-floating mb-3">
                                 <input type="text" class="form-control" name="username" id="username" 
