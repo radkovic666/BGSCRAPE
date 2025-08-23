@@ -110,6 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         body {
             background-color: var(--darker-bg);
             color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container.py-5 {
+            flex: 1 0 auto;
         }
 
         .card {
@@ -312,6 +319,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 font-size: 12px;
             }
         }
+        
+        /* Footer Styles */
+        .footer {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 0;
+            margin-top: auto;
+            backdrop-filter: blur(5px);
+            border-top: 1px solid var(--dark-border);
+        }
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .footer-logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #fff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        .footer-text {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+        .footer-bulgaria {
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 0 0 3px rgba(255, 235, 59, 0.5);
+        }
+        .footer-rights {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -432,6 +475,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Проект реализиран от 3Design, Драгомир Димитров</div>
+                <div class="footer-bulgaria">България над всичко!</div>
+                <div class="footer-rights">Nyama Fun &copy; <?php echo date('Y'); ?> Всички права запазени</div>
+            </div>
+        </div>
+    </footer>
 
     <div id="copiedAlert" class="copied-alert alert alert-success d-none">
         <i class="fas fa-check-circle me-2"></i>

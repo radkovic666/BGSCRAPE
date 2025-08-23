@@ -140,13 +140,55 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
         .card {
             border-radius: 1rem;
         }
+        
+        /* Footer Styles */
+        .footer {
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 15px 0;
+            margin-top: auto;
+            backdrop-filter: blur(5px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .footer-logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #fff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        .footer-text {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+        .footer-bulgaria {
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 0 0 3px rgba(255, 235, 59, 0.5);
+        }
+        .footer-rights {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
-<body class="gradient-custom vh-100">
-    <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div class="ascii-art">
+<body class="gradient-custom">
+    <div class="wrapper">
+        <div class="container py-5 flex-grow-1">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="ascii-art">
     )      )            *              (              ) 
  ( /(   ( /(   (      (  `     (       )\ )        ( /( 
  )\())  )\())  )\     )\))(    )\     (()/(    (   )\())
@@ -157,57 +199,69 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
 |_|\_|  |_|  /_/ \_\ |_|  |_|/_/ \_\  |_|   \___/ |_|\_|
 
 Няма пълно щастие !
-                </div>
-                <div class="card shadow-2-strong">
-                    <div class="card-body p-5 text-center">
-                        <h3 class="mb-4">Регистрирай акаунт</h3>
-                        <?php if ($error): ?>
-                            <div class="alert alert-danger"><?= $error ?></div>
-                        <?php endif; ?>
-                        <form method="post" id="registrationForm">
-                            <!-- Honeypot field for bots -->
-                            <div class="honeypot">
-                                <label for="honeypot">Не попълвайте това поле</label>
-                                <input type="text" id="honeypot" name="honeypot" tabindex="-1">
-                            </div>
-                            
-                            <!-- Hidden field to store the expected answer -->
-                            <input type="hidden" name="expected_answer" value="<?= $mathAnswer ?>">
-                            
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" name="username" id="username" 
-                                       placeholder="Потребителско име" required pattern="[a-zA-Z0-9_]+" 
-                                       minlength="3" maxlength="20">
-                                <label for="username">Потребителско име</label>
-                                <small class="form-text text-muted">Само букви, цифри и _ (3-20 символа)</small>
-                            </div>
-                            <div class="form-floating mb-3">
-                                <input type="password" class="form-control" name="password" id="password" 
-                                       placeholder="Парола" required minlength="8">
-                                <label for="password">Парола</label>
-                                <small class="form-text text-muted">Минимум 8 символа</small>
-                            </div>
-                            <div class="form-floating mb-3">
-                                <input type="password" class="form-control" name="confirm_password" 
-                                       id="confirm_password" placeholder="Потвърди паролата" required>
-                                <label for="confirm_password">Потвърди паролата</label>
-                            </div>
-                            
-                            <!-- Simple math question for bot protection -->
-                            <div class="math-question">
-                                <p>На колко е равно <?= $num1 ?> + <?= $num2 ?>?</p>
-                                <input type="number" class="form-control" name="math_answer" id="math_answer" 
-                                       required placeholder="Въведете отговора">
-                            </div>
-                            
-                            <button type="submit" class="btn btn-success btn-lg btn-block w-100">Готово</button>
-                        </form>
-                        <hr class="my-4">
-                        <p class="mb-0">Ако вече имаш регистрация <a href="index.php" class="text-success">логни се оттук</a></p>
+                    </div>
+                    <div class="card shadow-2-strong">
+                        <div class="card-body p-5 text-center">
+                            <h3 class="mb-4">Регистрирай акаунт</h3>
+                            <?php if ($error): ?>
+                                <div class="alert alert-danger"><?= $error ?></div>
+                            <?php endif; ?>
+                            <form method="post" id="registrationForm">
+                                <!-- Honeypot field for bots -->
+                                <div class="honeypot">
+                                    <label for="honeypot">Не попълвайте това поле</label>
+                                    <input type="text" id="honeypot" name="honeypot" tabindex="-1">
+                                </div>
+                                
+                                <!-- Hidden field to store the expected answer -->
+                                <input type="hidden" name="expected_answer" value="<?= $mathAnswer ?>">
+                                
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" name="username" id="username" 
+                                           placeholder="Потребителско име" required pattern="[a-zA-Z0-9_]+" 
+                                           minlength="3" maxlength="20">
+                                    <label for="username">Потребителско име</label>
+                                    <small class="form-text text-muted">Само букви, цифри и _ (3-20 символа)</small>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" name="password" id="password" 
+                                           placeholder="Парола" required minlength="8">
+                                    <label for="password">Парола</label>
+                                    <small class="form-text text-muted">Минимум 8 символа</small>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control" name="confirm_password" 
+                                           id="confirm_password" placeholder="Потвърди паролата" required>
+                                    <label for="confirm_password">Потвърди паролата</label>
+                                </div>
+                                
+                                <!-- Simple math question for bot protection -->
+                                <div class="math-question">
+                                    <p>На колко е равно <?= $num1 ?> + <?= $num2 ?>?</p>
+                                    <input type="number" class="form-control" name="math_answer" id="math_answer" 
+                                           required placeholder="Въведете отговора">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success btn-lg btn-block w-100">Готово</button>
+                            </form>
+                            <hr class="my-4">
+                            <p class="mb-0">Ако вече имаш регистрация <a href="index.php" class="text-success">логни се оттук</a></p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- Footer -->
+        <footer class="footer mt-auto">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-logo">Проект реализиран от 3Design, Драгомир Димитров</div>
+                    <div class="footer-bulgaria">България над всичко!</div>
+                    <div class="footer-rights">Nyama Fun &copy; <?php echo date('Y'); ?> Всички права запазени</div>
+                </div>
+            </div>
+        </footer>
     </div>
     
     <script>
