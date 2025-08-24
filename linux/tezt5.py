@@ -58,6 +58,20 @@ def get_updated_pass():
         logger.error(f"❌ Failed to fetch updated pass: {e}")
         return None
 
+def restart_pc():
+    """Restart the computer"""
+    try:
+        if os.name == 'nt':  # Windows
+            os.system("shutdown /r /t 10")
+        else:  # Linux/Mac
+            os.system("sudo shutdown -r now")
+        log_and_print("🔄 Restarting PC in 10 seconds...")
+        time.sleep(10)
+        sys.exit(0)
+    except Exception as e:
+        log_and_print(f"❌ Failed to restart PC: {e}")
+        sys.exit(1)
+
 # --- Main Scraping Loop ---
 while True:
     # --- Logging Configuration ---
@@ -90,6 +104,7 @@ while True:
 
     # Base URLs without pass
     base_urls = [
+	    # "https://www.gledaitv.live/watch-tv/50/film-box-online",
         "https://www.seir-sanduk.com/?id=hd-bnt-1-hd",
         "https://www.seir-sanduk.com/?id=bnt-2",
         "https://www.seir-sanduk.com/?id=hd-bnt-3-hd",
@@ -156,6 +171,8 @@ while True:
     ]
     urls = [f"{base}%26pass={dynamic_pass}" for base in base_urls]
 
+    all_successful = True
+    
     with open(temp_file_path, 'w') as f:
         for url in urls:
             retries = 0
@@ -186,6 +203,13 @@ while True:
 
             if not success:
                 logger.error("❌ Failed to get Envelope after 10 attempts")
+                all_successful = False
+                break  # Break out of the URL loop
+
+    # If any URL failed, restart the PC
+    if not all_successful:
+        log_and_print("❌ Some envelopes could not be retrieved. Restarting PC...")
+        restart_pc()
 
     clear_screen()
     append_additional_urls(temp_file_path)
