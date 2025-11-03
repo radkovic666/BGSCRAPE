@@ -7,6 +7,32 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Get total registered users count
+$totalUsers = 0;
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
+    $result = $stmt->fetch();
+    $totalUsers = $result['count'];
+} catch (Exception $e) {
+    // Silently fail - we don't want to break the registration page
+    $totalUsers = "N/A";
+}
+
+// Get active viewers from sessions.json
+$activeViewers = 0;
+try {
+    if (file_exists('sessions.json')) {
+        $sessionsData = file_get_contents('sessions.json');
+        $sessions = json_decode($sessionsData, true);
+        if (is_array($sessions)) {
+            $activeViewers = count($sessions);
+        }
+    }
+} catch (Exception $e) {
+    // Silently fail - we don't want to break the registration page
+    $activeViewers = "N/A";
+}
+
 $error = '';
 $ip = $_SERVER['REMOTE_ADDR'];
 
@@ -42,6 +68,7 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$ip]);
     } else {
         $username = trim($_POST['username']);
+        $email = trim($_POST['email']);
         $password = trim($_POST['password']);
         $confirm = trim($_POST['confirm_password']);
         $userMathAnswer = (int)$_POST['math_answer'];
@@ -54,6 +81,8 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validation
         $errors = [];
         if (empty($username)) $errors[] = "Потребителското име е задължително";
+        if (empty($email)) $errors[] = "Имейл адресът е задължителен";
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Невалиден имейл формат";
         if (empty($password)) $errors[] = "Паролата е задължителна";
         if ($password !== $confirm) $errors[] = "Паролите не съвпадат";
         if (strlen($password) < 8) $errors[] = "Паролата трябва да е поне 8 символа";
@@ -64,14 +93,23 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if (strlen($username) < 3) $errors[] = "Потребителското име трябва да е поне 3 символа";
         if (strlen($username) > 20) $errors[] = "Потребителското име не може да надвишава 20 символа";
 
+        // Check if email already exists
+        if (empty($errors)) {
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            if ($stmt->rowCount() > 0) {
+                $errors[] = "Този имейл адрес вече се използва";
+            }
+        }
+
         if (empty($errors)) {
             try {
                 $pdo->beginTransaction();
                 
                 // Create user
                 $hashed = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO users (username, password, ip_address) VALUES (?, ?, ?)");
-                $stmt->execute([$username, $hashed, $ip]);
+                $stmt = $pdo->prepare("INSERT INTO users (username, email, password, ip_address) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$username, $email, $hashed, $ip]);
                 $user_id = $pdo->lastInsertId();
                 
                 // Generate Xtream code
@@ -105,6 +143,7 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .gradient-custom {
             background: #6a11cb;
@@ -181,6 +220,42 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             flex-direction: column;
         }
+        .terms-link {
+            background-color: white;
+            color: black !important;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .terms-link:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        .stat-icon {
+            font-size: 14px;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #ffeb3b;
+        }
     </style>
 </head>
 <body class="gradient-custom">
@@ -224,6 +299,12 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <small class="form-text text-muted">Само букви, цифри и _ (3-20 символа)</small>
                                 </div>
                                 <div class="form-floating mb-3">
+                                    <input type="email" class="form-control" name="email" id="email" 
+                                           placeholder="Имейл адрес" required>
+                                    <label for="email">Имейл адрес</label>
+                                    <small class="form-text text-muted">Ще използваме този имейл за връзка с вас</small>
+                                </div>
+                                <div class="form-floating mb-3">
                                     <input type="password" class="form-control" name="password" id="password" 
                                            placeholder="Парола" required minlength="8">
                                     <label for="password">Парола</label>
@@ -252,17 +333,30 @@ if (!$error && $_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
         
-        <!-- Footer -->
-        <footer class="footer mt-auto">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-logo">Проект реализиран от 3Design, Драгомир Димитров</div>
-                    <div class="footer-bulgaria">България над всичко!</div>
-                    <div class="footer-rights">Nyama Fun &copy; <?php echo date('Y'); ?> Всички права запазени</div>
+<!-- Footer -->
+<footer class="footer mt-auto">
+    <div class="container">
+        <div class="footer-content">
+            <div class="user-stats">
+                <div class="stat-item">
+                    <span class="stat-icon"><i class="fas fa-users"></i></span>
+                    <span>Регистрирани: </span>
+                    <span class="stat-value"><?php echo $totalUsers; ?></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon"><i class="fas fa-eye"></i></span>
+                    <span>Активни: </span>
+                    <span class="stat-value"><?php echo $activeViewers; ?></span>
                 </div>
             </div>
-        </footer>
+            <div class="footer-bulgaria">България над всичко!</div>
+            <div class="footer-rights">Nyama Fun &copy; <?php echo date('Y'); ?> Всички права запазени</div>
+            <div class="mt-2">
+                <a href="faq.php" class="terms-link">Общи условия</a>
+            </div>
+        </div>
     </div>
+</footer>
     
     <script>
         // Add a small delay to form submission to prevent rapid automated submissions

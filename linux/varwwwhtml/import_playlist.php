@@ -1,51 +1,98 @@
 <?php
-require 'config.php';
+// ====================================================================
+// ip_tracker.php
+// Dynamic Public IP Tracker + Email Alert via smtp.abv.bg
+// ====================================================================
 
-$playlist_file = 'playlist.m3u';
+// --- CONFIGURATION ---
+$logFile = __DIR__ . '/ip_history.txt';
+$senderEmail = 'nyamafun@abv.bg';
+$senderPassword = 'H0rnbow12'; // replace locally with your real password
+$receiverEmail = 'dragomir.d.dimitrov@abv.bg'; // corrected typo
 
-if (!file_exists($playlist_file)) {
-    die("Error: playlist.m3u file not found.");
+// --- INCLUDE PHPMailer ---
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once '/var/www/html/PHPMailer/src/Exception.php';
+require_once '/var/www/html/PHPMailer/src/PHPMailer.php';
+require_once '/var/www/html/PHPMailer/src/SMTP.php';
+
+// --- FUNCTION: Get current public IP ---
+function getPublicIP() {
+    $sources = [
+        'https://ifconfig.me/ip',
+        'https://api.ipify.org',
+        'https://checkip.amazonaws.com'
+    ];
+
+    foreach ($sources as $url) {
+        $ip = @file_get_contents($url);
+        if ($ip && filter_var(trim($ip), FILTER_VALIDATE_IP)) {
+            return trim($ip);
+        }
+    }
+    return null;
 }
 
-$playlist_content = file($playlist_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+// --- FUNCTION: Get last logged IP ---
+function getLastIP($file) {
+    if (!file_exists($file)) return null;
+    $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!$lines) return null;
 
-// Clear the table before inserting new data
-$pdo->exec("TRUNCATE TABLE channels");
+    $lastLine = trim(end($lines));
+    if (strpos($lastLine, ' - ') !== false) {
+        $parts = explode(' - ', $lastLine);
+        return trim(end($parts));
+    }
+    return null;
+}
 
-$channels = [];
-$current_channel = [];
+// --- FUNCTION: Log new IP ---
+function logNewIP($file, $ip) {
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($file, "$timestamp - $ip\n", FILE_APPEND | LOCK_EX);
+}
 
-foreach ($playlist_content as $line) {
-    if (strpos($line, '#EXTINF:') !== false) {
-        preg_match('/tvg-id="([^"]+)" tvg-logo="([^"]+)" group-title="([^"]+)",(.+)/', $line, $matches);
-        if (count($matches) === 5) {
-            $current_channel = [
-                'tvg_id' => $matches[1],
-                'tvg_logo' => $matches[2],
-                'group_title' => $matches[3],
-                'channel_name' => $matches[4],
-                'stream_url' => '' // Will be filled in next line
-            ];
-        }
-    } elseif (!empty($current_channel)) {
-        $current_channel['stream_url'] = trim($line);
-        $channels[] = $current_channel;
-        $current_channel = []; // Reset for the next channel
+// --- FUNCTION: Send email ---
+function sendIPChangeEmail($fromEmail, $fromPass, $toEmail, $newIP) {
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host = 'smtp.abv.bg';
+        $mail->SMTPAuth = true;
+        $mail->Username = $fromEmail;
+        $mail->Password = $fromPass;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = 465;
+
+        $mail->setFrom($fromEmail, 'IP Tracker');
+        $mail->addAddress($toEmail);
+        $mail->Subject = 'Public IP Changed';
+        $mail->Body = "Your public IP has changed.\n\nNew IP: $newIP\nTime: " . date('Y-m-d H:i:s');
+
+        $mail->send();
+        error_log("IP change email successfully sent to $toEmail");
+    } catch (Exception $e) {
+        error_log("Email sending failed: {$mail->ErrorInfo}");
     }
 }
 
-// Insert into the database
-$stmt = $pdo->prepare("INSERT INTO channels (channel_name, stream_url, tvg_id, tvg_logo, group_title) VALUES (?, ?, ?, ?, ?)");
+// --- MAIN EXECUTION ---
+$currentIP = getPublicIP();
 
-foreach ($channels as $channel) {
-    $stmt->execute([
-        $channel['channel_name'],
-        $channel['stream_url'],
-        $channel['tvg_id'],
-        $channel['tvg_logo'],
-        $channel['group_title']
-    ]);
+if ($currentIP) {
+    $lastIP = getLastIP($logFile);
+
+    if ($currentIP !== $lastIP) {
+        logNewIP($logFile, $currentIP);
+        sendIPChangeEmail($senderEmail, $senderPassword, $receiverEmail, $currentIP);
+    }
+} else {
+    error_log("Unable to fetch current public IP");
 }
 
-echo "Playlist imported successfully.";
+echo "IP monitoring completed.\n";
 ?>

@@ -50,6 +50,32 @@ if (file_exists($sessions_file)) {
     }
 }
 
+// Get total registered users count
+$totalUsers = 0;
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
+    $result = $stmt->fetch();
+    $totalUsers = $result['count'];
+} catch (Exception $e) {
+    // Silently fail - we don't want to break the dashboard page
+    $totalUsers = "N/A";
+}
+
+// Get active viewers from sessions.json
+$activeViewers = 0;
+try {
+    if (file_exists('sessions.json')) {
+        $sessionsData = file_get_contents('sessions.json');
+        $sessions = json_decode($sessionsData, true);
+        if (is_array($sessions)) {
+            $activeViewers = count($sessions);
+        }
+    }
+} catch (Exception $e) {
+    // Silently fail - we don't want to break the dashboard page
+    $activeViewers = "N/A";
+}
+
 // Handle Change Device request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_device') {
     // Verify password
@@ -355,6 +381,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             font-size: 0.8rem;
             opacity: 0.8;
         }
+        .terms-link {
+            background-color: white;
+            color: black !important;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .terms-link:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* User Stats Styles */
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        .stat-icon {
+            font-size: 14px;
+        }
+        .stat-value {
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+        
+        /* Modal Styles */
+        .modal-content {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            border: 1px solid var(--dark-border);
+        }
+        .modal-header {
+            border-bottom: 1px solid var(--dark-border);
+        }
+        .modal-footer {
+            border-top: 1px solid var(--dark-border);
+        }
+        .instruction-img {
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 1px solid var(--dark-border);
+            border-radius: 5px;
+        }
+        .instruction-img:hover {
+            transform: scale(1.02);
+        }
+        .instruction-label {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--github-gray);
+        }
+        .img-zoomed {
+            max-width: 100%;
+            border-radius: 5px;
+            border: 1px solid var(--dark-border);
+        }
     </style>
 </head>
 <body>
@@ -399,13 +496,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <strong>Активна сесия:</strong><br>
                             Устройство: <?= htmlspecialchars($watchingInfo['ua']) ?><br>
                             <!--IP адрес: <?= htmlspecialchars($watchingInfo['ip']) ?><br>-->
-                            Последна активност: <?= date('Y-m-d H:i:s', $watchingInfo['last_seen']) ?>
+                            Заключен към устройство на: <?= date('d-m-Y H:i:s', $watchingInfo['created']) ?><br>
+                            Последна активност: <?= date('d-m-Y H:i:s', $watchingInfo['last_seen']) ?><br>
                         </div>
                         <?php endif; ?>
                         
                         <div class="alert alert-info mt-3">
                             <h5 class="alert-heading">Детайли за акаунта:</h5>
                             <div class="text-muted">Използвай линковете в любимия ти IPTV плеър и се наслаждавай на безплатна българска телевизия.
+                            Един акаунт има право да ползва телевизията само на едно устройство !
+                            <br>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#instructionsModal" class="text-primary">Инструкции за ползване на линковете</a>
                             </div>
                             <hr>
 
@@ -476,16 +577,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer mt-auto">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">Проект реализиран от 3Design, Драгомир Димитров</div>
-                <div class="footer-bulgaria">България над всичко!</div>
-                <div class="footer-rights">Nyama Fun &copy; <?php echo date('Y'); ?> Всички права запазени</div>
+    <!-- Instructions Modal -->
+    <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="instructionsModalLabel">Инструкции за ползване на линковете</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Nyama Fun е IP телевизия, която работи с интернет без значение жичен или безжичен. За да гледате от платформата е нужно само да имате смарт устройство с предварително изтеглен IPTV плейър(Kodi, TiviMate, IPTV Smarters, Televizo и др.)</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-2">
+                            <img src="thumbs/kodi.jpg" class="img-fluid instruction-img" data-bs-toggle="modal" data-bs-target="#imageZoomModal" onclick="setZoomedImage(this.src)">
+                            <div class="instruction-label">Меню за въвеждане на M3U URL</div>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <img src="thumbs/kodi2.jpg" class="img-fluid instruction-img" data-bs-toggle="modal" data-bs-target="#imageZoomModal" onclick="setZoomedImage(this.src)">
+                            <div class="instruction-label">Меню за въвеждане на EPG URL</div>
+                        </div>
+                    </div>
+                    
+                    <p>за KODI е нужно да имате IPTV Simple client и в него въвеждате линковете за TV и EPG</p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-2">
+                            <img src="thumbs/smarters.jpg" class="img-fluid instruction-img" data-bs-toggle="modal" data-bs-target="#imageZoomModal" onclick="setZoomedImage(this.src)">
+                            <div class="instruction-label">Пример за настройка под IPTV Smarters</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-2">
+                            <img src="thumbs/tivi1.png" class="img-fluid instruction-img" data-bs-toggle="modal" data-bs-target="#imageZoomModal" onclick="setZoomedImage(this.src)">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <img src="thumbs/tivi2.png" class="img-fluid instruction-img" data-bs-toggle="modal" data-bs-target="#imageZoomModal" onclick="setZoomedImage(this.src)">
+                        </div>
+                        <div class="instruction-label text-center">Пример за настройка под TiviMate</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-2">
+                            <img src="thumbs/tel1.png" class="img-fluid instruction-img" data-bs-toggle="modal" data-bs-target="#imageZoomModal" onclick="setZoomedImage(this.src)">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <img src="thumbs/tel2.png" class="img-fluid instruction-img" data-bs-toggle="modal" data-bs-target="#imageZoomModal" onclick="setZoomedImage(this.src)">
+                        </div>
+                        <div class="instruction-label text-center">Пример за настройка под Televizo</div>
+                    </div>
+                    
+                    <div class="alert alert-danger mt-3">
+                        Имайте впредвид, че плейлиста се актуализира на всеки час и ако случайно картината ви забие, спре или не се зарежда, моля презаредете плейлиста от вашия IPTV плеър!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                </div>
             </div>
         </div>
-    </footer>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div class="modal fade" id="imageZoomModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <img id="zoomedImage" src="" class="img-zoomed">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Затвори</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Footer -->
+<footer class="footer mt-auto">
+    <div class="container">
+        <div class="footer-content">
+            <div class="user-stats">
+                <div class="stat-item">
+                    <span class="stat-icon"><i class="fas fa-users"></i></span>
+                    <span>Регистрирани: </span>
+                    <span class="stat-value"><?php echo $totalUsers; ?></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon"><i class="fas fa-eye"></i></span>
+                    <span>Активни: </span>
+                    <span class="stat-value"><?php echo $activeViewers; ?></span>
+                </div>
+            </div>
+            <div class="footer-bulgaria">България над всичко!</div>
+            <div class="footer-rights">Nyama Fun &copy; <?php echo date('Y'); ?> Всички права запазени</div>
+            <div class="mt-2">
+                <a href="faq.php" class="terms-link">Общи условия</a>
+            </div>
+        </div>
+    </div>
+</footer>
 
     <div id="copiedAlert" class="copied-alert alert alert-success d-none">
         <i class="fas fa-check-circle me-2"></i>
@@ -563,6 +754,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             alertBox.classList.remove('d-none');
             alertBox.classList.add('alert-danger');
         });
+    }
+    
+    function setZoomedImage(src) {
+        document.getElementById('zoomedImage').src = src;
     }
     </script>
 </body>
