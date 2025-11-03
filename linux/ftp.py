@@ -30,7 +30,7 @@ for file in files_to_copy:
 
 # Run import_playlist.php to update the database
 try:
-    response = requests.get("http://localhost/import_playlist.php", timeout=60)
+    response = requests.get("https://nyama.fun/import_playlist.php", timeout=60)
     if response.status_code == 200:
         print("Peyo accomplished his job successfully.")
 
@@ -38,8 +38,8 @@ try:
         playlist_path = os.path.join(destination_dir, "playlist.m3u")
         if os.path.exists(playlist_path):
             try:
-                os.remove(playlist_path)
-                #print(f"Deleted: {playlist_path}")
+                #os.remove(playlist_path)
+                print(f"Adopted: {playlist_path}")
             except PermissionError:
                 print(f"Permission denied: Cannot delete {playlist_path}. Try running with sudo.")
     else:

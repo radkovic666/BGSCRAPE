@@ -1,12 +1,35 @@
 # arabskivestnik H0rnbow12 otustanausta.com
 
+import os
+import sys
+import time
+import requests
+
+def check_internet_connection(url="https://www.google.com", timeout=5):
+    """Check for active internet connection."""
+    try:
+        _ = requests.get(url, timeout=timeout)
+        return True
+    except requests.RequestException:
+        return False
+
+def restart_script():
+    """Restart the current Python script."""
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+
+# --- Network Connection Check Loop ---
+print("🌐 Checking internet connection...")
+while not check_internet_connection():
+    print("❌ No internet connection. Retrying in 10 seconds...")
+    time.sleep(10)
+    restart_script()
+
+print("✅ Internet connection established! Continuing...\n")
+
 import ctypes
 import re
-import sys
-import requests
 import subprocess
-import os
-import time
 import logging
 from datetime import datetime, timedelta
 

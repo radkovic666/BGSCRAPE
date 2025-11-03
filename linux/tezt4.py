@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 # Define metadata for channels
@@ -21,7 +22,6 @@ channel_metadata = {
     "hd-star-crime-hd": {"name": "Star Crime", "tvg_id": "STARCrime", "group_title": "Филми", "logo": "http://logos.epg.cloudns.org/starcrime.png"},
     "hd-star-life-hd": {"name": "Star Life", "tvg_id": "STARLife", "group_title": "Филми", "logo": "http://logos.epg.cloudns.org/starlife.png"},
     "hd-epic-drama-hd": {"name": "Epic Drama", "tvg_id": "EpicDrama", "group_title": "Филми", "logo": "http://logos.epg.cloudns.org/epicdrama.png"},
-    #"amc": {"name": "AMC", "tvg_id": "amc", "group_title": "Филми", "logo": "http://logos.epg.cloudns.org/amc.png"},
     "axn": {"name": "AXN", "tvg_id": "AXN", "group_title": "Филми", "logo": "http://logos.epg.cloudns.org/axn.png"},
     "axn-black": {"name": "AXN Black", "tvg_id": "AXNBlack", "group_title": "Филми", "logo": "http://logos.epg.cloudns.org/axnblack.png"},
     "axn-white": {"name": "AXN White", "tvg_id": "AXNWhite", "group_title": "Филми", "logo": "http://logos.epg.cloudns.org/axnwhite.png"},
@@ -38,19 +38,14 @@ channel_metadata = {
     "hd-max-sport-4-hd": {"name": "MAX Sport 4", "tvg_id": "MAXSport4", "group_title": "Спорт", "logo": "http://logos.epg.cloudns.org/maxsport4.png"},
     "hd-ring-bg-hd": {"name": "RING BG", "tvg_id": "RING", "group_title": "Спорт", "logo": "http://logos.epg.cloudns.org/ring.png"},
 
-    #"historytv": {"name": "History Channel", "tvg_id": "History", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/history.png"},
     "hd-discovery-channel-hd": {"name": "Discovery Channel", "tvg_id": "Discovery", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/discovery.png"},
     "hd-id-xtra-hd": {"name": "Investigation Discovery", "tvg_id": "ID", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/id.png"},
     "hd-nat-geo-hd": {"name": "National Geographic", "tvg_id": "NatGeo", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/natgeo.png"},
-    "hd-nat-geo-wild-hd": {"name": "Nat Geo Wild", "tvg_id": "NatGeo Wild", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/natgeowild.png"},
-    #"animalplanet": {"name": "Animal Planet", "tvg_id": "AnimalPlanet", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/animalplanet.png"},
-    #"docubox": {"name": "Docubox", "tvg_id": "DocuBox", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/docubox.png"},
+    "hd-nat-geo-wild-hd": {"name": "Nat Geo Wild", "tvg_id": "NatGeoWild", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/natgeowild.png"},
     "tlc": {"name": "TLC", "tvg_id": "TLC", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/tlc.png"},
     "hd-food-network-hd": {"name": "Food Network", "tvg_id": "FoodNetwork", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/foodnetwork.png"},
     "hd-24-kitchen-hd": {"name": "24Kitchen", "tvg_id": "24kitchen", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/24kitchen.png"},
     "hd-travel-channel-hd": {"name": "Travel Channel", "tvg_id": "TravelChannel", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/travelchannel.png"},
-    #"viasat_history": {"name": "Viasat History", "tvg_id": "ViasatHistory", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/viasathistory.png"},
-    #"viasat_nature": {"name": "Viasat Nature", "tvg_id": "ViasatNature", "group_title": "Научнопопулярни", "logo": "http://logos.epg.cloudns.org/viasatnature.png"},
 
     "cartoon-network": {"name": "Cartoon Network", "tvg_id": "CartoonNetwork", "group_title": "Детски", "logo": "http://logos.epg.cloudns.org/cartoonnetwork.png"},
     "disney-channel": {"name": "Disney Channel", "tvg_id": "Disney", "group_title": "Детски", "logo": "http://logos.epg.cloudns.org/disney.png"},
@@ -59,13 +54,12 @@ channel_metadata = {
     "nicktoons": {"name": "NickToons", "tvg_id": "Nicktoons", "group_title": "Детски", "logo": "http://logos.epg.cloudns.org/nicktoons.png"},
     "nick-jr": {"name": "Nick Jr", "tvg_id": "NickJr", "group_title": "Детски", "logo": "http://logos.epg.cloudns.org/nickjr.png"},
 
-    
     "hd-planeta-hd": {"name": "Planeta HD", "tvg_id": "Planeta", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/planeta.png"},
     "planeta-folk": {"name": "Planeta Folk", "tvg_id": "PlanetaFolk", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/planetafolk.png"},
-    "tiankov-tv": {"name": "Tiankov Folk","tvg_id": "TiankovFolk", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/tiankovfolk.png"},
-    "folklor-tv": {"name": "Фолклор ТВ","tvg_id": "FolklorTV", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/folklortv.png"},
-    "rodina-tv": {"name": "Телевизия „Родина”","tvg_id": "Rodina", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/rodina.png"},
-    "city-tv": {"name": "City TB","tvg_id": "City", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/city.png"},
+    "tiankov-tv": {"name": "Tiankov Folk", "tvg_id": "TiankovFolk", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/tiankovfolk.png"},
+    "folklor-tv": {"name": "Фолклор ТВ", "tvg_id": "FolklorTV", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/folklortv.png"},
+    "rodina-tv": {"name": "Телевизия „Родина”", "tvg_id": "Rodina", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/rodina.png"},
+    "city-tv": {"name": "City TB", "tvg_id": "City", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/city.png"},
     "dstv": {"name": "DSTV", "tvg_id": "DSTV", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/dstv.png"},
 
     "kanal-3": {"name": "Канал 3", "tvg_id": "Kanal3", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/kanal3.png"},
@@ -81,15 +75,9 @@ channel_metadata = {
     "hd-code-fashion-tv-hd": {"name": "Code Fashion", "tvg_id": "CodeFashion", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/codefashion.png"},
     "travel-tv": {"name": "Travel TV", "tvg_id": "Travel", "group_title": "Общи", "logo": "http://logos.epg.cloudns.org/travel.png"},
     "live": {"name": "Deutsche Welle", "tvg_id": "DeutscheWelle", "group_title": "Чуждестранни", "logo": "http://logos.epg.cloudns.org/deutschewelle.png"},
-
-    #"tiankov-orient": {"name": "Tiankov Orient","tvg_id": "TiankovFolk", "group_title": "Музикални", "logo": "https://hajanddebono.com/images/tiankovorient.png"},
-    #"fantv": {"name": "FEN TV", "tvg_id": "FENTV", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/fentv.png"},
-    #"balkanika": {"name": "Balkanika", "tvg_id": "Balkanika", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/balkanika.png"},
     "thevoice": {"name": "The Voice", "tvg_id": "TheVoice", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/thevoice.png"},
     "magictv": {"name": "Magic TV", "tvg_id": "MagicTV", "group_title": "Музикални", "logo": "http://logos.epg.cloudns.org/magictv.png"}
 }
-
-
 
 # File paths
 input_file = "temp.txt"
@@ -106,22 +94,25 @@ def generate_m3u():
     with open(input_file, "r") as infile:
         lines = infile.readlines()
 
-    # Start building M3U content
     m3u_content = [m3u_header]
     
     for line in lines:
         url = line.strip()
         if not url:
-            continue  # Skip empty lines
+            continue
 
-        # Channel key extraction logic
+        # --- Updated Channel Key Extraction Logic ---
+        match = None
         if '/hls/' in url:
-            channel_key = url.split('/hls/')[1].split('/')[0]
+            match = re.search(r'/hls/([^/]+?)\.m3u8', url)
         elif '/dvr/' in url:
-            channel_key = url.split('/dvr/')[1].split('/')[0]
+            match = re.search(r'/dvr/([^/]+?)\.m3u8', url)
+
+        if match:
+            channel_key = match.group(1)
         else:
-            # Fallback for other URL structures
-            channel_key = url.split('/')[-2]  # Second to last path segment
+            # Fallback if pattern not found
+            channel_key = url.split('/')[-1].replace('.m3u8', '').split('?')[0]
 
         # Get metadata or use defaults
         metadata = channel_metadata.get(channel_key, {
@@ -133,9 +124,9 @@ def generate_m3u():
 
         # Build EXTINF line
         extinf = (f'#EXTINF:-1 tvg-id="{metadata["tvg_id"]}" '
-                 f'tvg-logo="{metadata["logo"]}" '
-                 f'group-title="{metadata["group_title"]}",'
-                 f'{metadata["name"]}')
+                  f'tvg-logo="{metadata["logo"]}" '
+                  f'group-title="{metadata["group_title"]}",'
+                  f'{metadata["name"]}')
 
         # Add to playlist
         m3u_content.append(extinf)
@@ -144,7 +135,8 @@ def generate_m3u():
     # Write output file
     with open(output_file, "w") as outfile:
         outfile.write('\n'.join(m3u_content))
-    print(f"Successfully created Parcel with {len(lines)} Envelopes")
+    
+    print(f"Successfully created playlist with {len(lines)} entries.")
 
 # Execute the function
 generate_m3u()
