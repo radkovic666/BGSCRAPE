@@ -69,7 +69,7 @@ def append_additional_urls(file_path):
 
 def get_updated_pass():
     try:
-        response = requests.get("https://www.seir-sanduk.com/linkzagledane.php?parola=aeagaDs3AdKaAf2", allow_redirects=True, timeout=10)
+        response = requests.get("https://www.seir-sanduk.com/linkzagledane.php?parola=FaeagaDs3AdKaAf9", allow_redirects=True, timeout=10)
         redirected_url = response.url
         match = re.search(r'pass=([a-zA-Z0-9]+)', redirected_url)
         if match:
@@ -123,7 +123,7 @@ while True:
     dynamic_pass = get_updated_pass()
     if not dynamic_pass:
         log_and_print("❌ Using default pass due to failure.")
-        dynamic_pass = "22kalAdKaAf2l22"  # fallback
+        dynamic_pass = "11kalAdKaAde11sF8F02020404020402"  # fallback
 
     # Base URLs without pass
     base_urls = [
@@ -136,10 +136,10 @@ while True:
         "https://www.seir-sanduk.com/?id=hd-nova-tv-hd",
         "https://www.seir-sanduk.com/?id=btv-cinema",
         "https://www.seir-sanduk.com/?id=hd-btv-action-hd",
-        "https://www.seir-sanduk.com/?id=btv-comedy",
+        "https://www.seir-sanduk.com/?id=hd-btv-comedy-hd",
         "https://www.seir-sanduk.com/?id=btv-story",
-        "https://www.seir-sanduk.com/?id=diema",
-        "https://www.seir-sanduk.com/?id=diema-family",
+        "https://www.seir-sanduk.com/?id=hd-diema-hd",
+        "https://www.seir-sanduk.com/?id=hd-diema-family-hd",
         "https://www.seir-sanduk.com/?id=kino-nova",
         "https://www.seir-sanduk.com/?id=hd-star-channel-hd",
         "https://www.seir-sanduk.com/?id=hd-star-crime-hd",
@@ -177,7 +177,7 @@ while True:
         "https://www.seir-sanduk.com/?id=hd-nova-news-hd",
         "https://www.seir-sanduk.com/?id=hd-78-tv-hd",
         "https://www.seir-sanduk.com/?id=bloomberg-tv",
-        "https://www.seir-sanduk.com/?id=euronews-bulgaria",
+        "https://www.seir-sanduk.com/?id=hd-euronews-bulgaria-hd",
         "https://www.seir-sanduk.com/?id=tv-1",
         "https://www.seir-sanduk.com/?id=bulgaria-on-air",
         "https://www.seir-sanduk.com/?id=vtk",
