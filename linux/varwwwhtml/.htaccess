@@ -1,0 +1,28 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# If playlist.m3u is requested WITHOUT username or password → block
+RewriteCond %{REQUEST_URI} ^/playlist\.m3u$ [NC]
+RewriteCond %{QUERY_STRING} !(^|&)username=[^&]+ [NC,OR]
+RewriteCond %{QUERY_STRING} !(^|&)password=[^&]+ [NC]
+RewriteRule ^ - [F,L]
+
+# If BOTH username and password exist → send to auth script
+RewriteCond %{REQUEST_URI} ^/playlist\.m3u$ [NC]
+RewriteCond %{QUERY_STRING} (^|&)username=[^&]+ [NC]
+RewriteCond %{QUERY_STRING} (^|&)password=[^&]+ [NC]
+RewriteRule ^playlist\.m3u$ auth_playlist.php [L]
+
+# Block browsers and allow only IPTV players
+<Files "playlist.m3u">
+  # Allow known IPTV user agents
+  SetEnvIf User-Agent ".*(VLC|Kodi|IPTV|Player|SimpleTV|PerfectPlayer|OTTPlayer|TiviMate|IMPlayer|XC|GSE|LazyIPTV|CosmiDVR|TVirl|Televizo|ss-iptv|iptv-smarters).*" allow_agent
+  
+  # Allow requests that don't look like browsers
+  SetEnvIf User-Agent "^$" allow_agent
+  SetEnvIf User-Agent "^(Java|python|curl|wget|libcurl).*" allow_agent
+  
+  Order deny,allow
+  Deny from all
+  Allow from env=allow_agent
+</Files>
