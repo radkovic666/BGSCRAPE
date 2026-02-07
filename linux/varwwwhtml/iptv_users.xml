@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 5.1.1deb5ubuntu1
+- https://www.phpmyadmin.net
+-
+- Host: localhost:3306
+- Generation Time: Jan 15, 2026 at 12:05 PM
+- Server version: 8.0.44-0ubuntu0.22.04.2
+- PHP Version: 8.1.2-1ubuntu2.22
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="https://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="iptv_users" collation="utf8mb4_unicode_ci" charset="utf8mb4">
+            <pma:table name="device_bindings">
+                CREATE TABLE `device_bindings` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `user_id` int NOT NULL,
+                  `account_key` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `device_fingerprint` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `user_agent` text COLLATE utf8mb4_unicode_ci,
+                  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                  `last_seen` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `account_key` (`account_key`),
+                  UNIQUE KEY `unique_user_binding` (`user_id`),
+                  CONSTRAINT `device_bindings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            </pma:table>
+            <pma:table name="device_binding_logs">
+                CREATE TABLE `device_binding_logs` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `user_id` int NOT NULL,
+                  `action` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                  `fingerprint` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                  `user_agent` text COLLATE utf8mb4_unicode_ci,
+                  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`),
+                  KEY `idx_user_id` (`user_id`),
+                  KEY `idx_created` (`created_at`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            </pma:table>
+            <pma:table name="playlist_sessions">
+                CREATE TABLE `playlist_sessions` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `account_key` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `fingerprint` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `user_agent` text COLLATE utf8mb4_unicode_ci,
+                  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  `last_seen` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `account_key` (`account_key`),
+                  KEY `fingerprint` (`fingerprint`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            </pma:table>
+            <pma:table name="registration_attempts">
+                CREATE TABLE `registration_attempts` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `attempt_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  `is_suspicious` tinyint(1) DEFAULT &#039;0&#039;,
+                  PRIMARY KEY (`id`),
+                  KEY `ip_address` (`ip_address`),
+                  KEY `attempt_time` (`attempt_time`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            </pma:table>
+            <pma:table name="users">
+                CREATE TABLE `users` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  `last_login` timestamp NULL DEFAULT NULL,
+                  `status` enum(&#039;active&#039;,&#039;suspended&#039;,&#039;deleted&#039;) COLLATE utf8mb4_unicode_ci DEFAULT &#039;active&#039;,
+                  `device_count` int DEFAULT &#039;0&#039;,
+                  `last_device_reset` timestamp NULL DEFAULT NULL,
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `username` (`username`),
+                  UNIQUE KEY `email` (`email`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            </pma:table>
+            <pma:table name="xtream_codes">
+                CREATE TABLE `xtream_codes` (
+                  `id` int NOT NULL AUTO_INCREMENT,
+                  `user_id` int NOT NULL,
+                  `xtream_username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `xtream_password` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+                  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  `is_active` tinyint(1) DEFAULT &#039;1&#039;,
+                  `is_device_bound` tinyint(1) DEFAULT &#039;0&#039;,
+                  PRIMARY KEY (`id`),
+                  UNIQUE KEY `user_id` (`user_id`),
+                  UNIQUE KEY `xtream_username` (`xtream_username`),
+                  CONSTRAINT `xtream_codes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            </pma:table>
+        </pma:database>
+    </pma:structure_schemas>
+
+    <!--
+    - Database: 'iptv_users'
+    -->
+    <database name="iptv_users">
+        <!-- Table device_bindings -->
+        <!-- Table device_binding_logs -->
+        <!-- Table playlist_sessions -->
+        <!-- Table registration_attempts -->
+        <table name="registration_attempts">
+            <column name="id">1</column>
+            <column name="ip_address">192.168.1.1</column>
+            <column name="attempt_time">2025-12-28 01:02:58</column>
+            <column name="is_suspicious">0</column>
+        </table>
+        <table name="registration_attempts">
+            <column name="id">2</column>
+            <column name="ip_address">192.168.1.1</column>
+            <column name="attempt_time">2025-12-28 01:03:22</column>
+            <column name="is_suspicious">0</column>
+        </table>
+        <table name="registration_attempts">
+            <column name="id">3</column>
+            <column name="ip_address">79.100.58.10</column>
+            <column name="attempt_time">2025-12-28 02:39:07</column>
+            <column name="is_suspicious">0</column>
+        </table>
+        <table name="registration_attempts">
+            <column name="id">4</column>
+            <column name="ip_address">90.154.206.115</column>
+            <column name="attempt_time">2026-01-14 19:44:59</column>
+            <column name="is_suspicious">0</column>
+        </table>
+        <table name="registration_attempts">
+            <column name="id">5</column>
+            <column name="ip_address">90.154.206.115</column>
+            <column name="attempt_time">2026-01-14 19:45:23</column>
+            <column name="is_suspicious">0</column>
+        </table>
+        <!-- Table users -->
+        <table name="users">
+            <column name="id">1</column>
+            <column name="username">dragomir</column>
+            <column name="email">dragomir.d.dimitrov@abv.bg</column>
+            <column name="password">$2y$10$T4BJHIGAA7y08iN/Efd0BuOEIFpLUKZiEw6UaOpODrCVJgdD.qv.6</column>
+            <column name="ip_address">192.168.1.1</column>
+            <column name="created_at">2025-12-28 01:03:22</column>
+            <column name="last_login">NULL</column>
+            <column name="status">active</column>
+            <column name="device_count">0</column>
+            <column name="last_device_reset">NULL</column>
+        </table>
+        <table name="users">
+            <column name="id">2</column>
+            <column name="username">chinkata</column>
+            <column name="email">arabskivestnik@abv.bg</column>
+            <column name="password">$2y$10$A8LzLUJDuoxZLoByMpe./uUJVW2US7ggm3FvdOtdCEUAnMcEu9ebu</column>
+            <column name="ip_address">79.100.58.10</column>
+            <column name="created_at">2025-12-28 02:39:07</column>
+            <column name="last_login">NULL</column>
+            <column name="status">active</column>
+            <column name="device_count">0</column>
+            <column name="last_device_reset">NULL</column>
+        </table>
+        <table name="users">
+            <column name="id">3</column>
+            <column name="username">mazeto</column>
+            <column name="email">vbox0@abv.bg</column>
+            <column name="password">$2y$10$G2Tsa6gAcrp/an.nCEH8H.cNoNWaFvmVUeZpGgpOCTusOQH1CIXIu</column>
+            <column name="ip_address">90.154.206.115</column>
+            <column name="created_at">2026-01-14 19:45:23</column>
+            <column name="last_login">NULL</column>
+            <column name="status">active</column>
+            <column name="device_count">0</column>
+            <column name="last_device_reset">NULL</column>
+        </table>
+        <!-- Table xtream_codes -->
+        <table name="xtream_codes">
+            <column name="id">1</column>
+            <column name="user_id">1</column>
+            <column name="xtream_username">dragomir</column>
+            <column name="xtream_password">5e193307be4734b3851d57244d3f4fa7</column>
+            <column name="created_at">2025-12-28 01:03:22</column>
+            <column name="is_active">1</column>
+            <column name="is_device_bound">0</column>
+        </table>
+        <table name="xtream_codes">
+            <column name="id">2</column>
+            <column name="user_id">2</column>
+            <column name="xtream_username">chinkata</column>
+            <column name="xtream_password">e33b61ca2f11b7fb17db61001520a312</column>
+            <column name="created_at">2025-12-28 02:39:07</column>
+            <column name="is_active">1</column>
+            <column name="is_device_bound">0</column>
+        </table>
+        <table name="xtream_codes">
+            <column name="id">3</column>
+            <column name="user_id">3</column>
+            <column name="xtream_username">mazeto</column>
+            <column name="xtream_password">09e4cce5ad702d50b1563c503e483e7c</column>
+            <column name="created_at">2026-01-14 19:45:23</column>
+            <column name="is_active">1</column>
+            <column name="is_device_bound">0</column>
+        </table>
+    </database>
+</pma_xml_export>
