@@ -597,6 +597,28 @@ a.btn-custom[href="scrapelog.html"]:hover {
             background-color: rgba(47, 129, 247, 0.1);
         }
         
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-dot-active {
+            background-color: #2ea043;
+            box-shadow: 0 0 5px rgba(46, 160, 67, 0.7);
+        }
+        
+        .status-dot-suspended {
+            background-color: #f72585;
+            box-shadow: 0 0 5px rgba(247, 37, 133, 0.7);
+        }
+        
+        .status-dot:hover {
+            transform: scale(1.2);
+            transition: transform 0.2s ease;
+        }
+        
         .status-badge {
             display: inline-block;
             padding: 5px 12px;
@@ -1062,19 +1084,23 @@ a.btn-custom[href="scrapelog.html"]:hover {
                         data-last-seen="<?php echo $isBound ? htmlspecialchars($deviceInfo['last_seen']) : ''; ?>">
                         <td><?php echo $user['id']; ?></td>
                         <td>
-                            <strong><?php echo htmlspecialchars($user['username']); ?></strong>
-
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="status-dot <?php echo $user['user_status'] === 'active' ? 'status-dot-active' : 'status-dot-suspended'; ?>"
+                                     title="<?php echo $user['user_status'] === 'active' ? 'Active' : 'Suspended'; ?>">
+                                </div>
+                                <strong><?php echo htmlspecialchars($user['username']); ?></strong>
+                            </div>
                         </td>
                         <td><?php echo htmlspecialchars($user['email']); ?></td>
                         <td><?php echo date('Y-m-d', strtotime($user['created_at'])); ?></td>
                         <td>
                             <?php if ($isBound): ?>
                                 <span class="status-badge status-bound">
-                                    <i class="fas fa-link me-1"></i> Заключен
+                                    <i class="fas fa-link me-1"></i> 
                                 </span>
                             <?php else: ?>
                                 <span class="status-badge status-not-bound">
-                                    <i class="fas fa-unlink me-1"></i> Незаключен
+                                    <i class="fas fa-unlink me-1"></i> 
                                 </span>
                             <?php endif; ?>
                         </td>
@@ -1102,7 +1128,7 @@ a.btn-custom[href="scrapelog.html"]:hover {
                                     <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                     <input type="hidden" name="delete_user" value="1">
                                     <button type="submit" class="btn-action btn-delete" 
-                                            onclick="return confirm('Delete user <?php echo htmlspecialchars($user['username']); ?>? This action cannot be undone!')">
+                                            onclick="return confirm('Изтрий абонат <?php echo htmlspecialchars($user['username']); ?>? Няма връщане назад!')">
                                         <i class="fas fa-trash"></i> Изтрий
                                     </button>
                                 </form>
@@ -1309,7 +1335,7 @@ a.btn-custom[href="scrapelog.html"]:hover {
                     <label class="form-label">Промени Статус</label>
                     <select class="form-select" name="status">
                         <option value="active" ${status === 'active' ? 'selected' : ''}>Активиран</option>
-                        <option value="suspended">Блокиран</option>
+                        <option value="suspended" ${status === 'suspended' ? 'selected' : ''}>Блокиран</option>
                     </select>
                 </div>
             `;
