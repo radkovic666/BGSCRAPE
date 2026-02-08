@@ -59,6 +59,7 @@ def minimize_window():
 
 def append_additional_urls(file_path):
     additional_urls = [
+        "https://viamotionhsi.netplus.ch/live/eds/dmsat/browser-HLS8/dmsat.m3u8",
         "https://bss1.neterra.tv/magictv/stream_0.m3u8",
         "https://bss1.neterra.tv/thevoice/stream_0.m3u8",
         "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/stream04/streamPlaylist.m3u8"
@@ -66,20 +67,6 @@ def append_additional_urls(file_path):
     with open(file_path, 'a') as f:
         for url in additional_urls:
             f.write(url + '\n')
-
-def get_updated_pass():
-    try:
-        response = requests.get("https://www.seir-sanduk.com/linkzagledane.php?parola=FaeagaDs3AdKaAf9", allow_redirects=True, timeout=10)
-        redirected_url = response.url
-        match = re.search(r'pass=([a-zA-Z0-9]+)', redirected_url)
-        if match:
-            return match.group(1)
-        else:
-            logger.warning("⚠️ No 'pass' parameter found in redirect URL.")
-            return None
-    except Exception as e:
-        logger.error(f"❌ Failed to fetch updated pass: {e}")
-        return None
 
 def restart_pc():
     """Restart the computer"""
@@ -94,6 +81,21 @@ def restart_pc():
     except Exception as e:
         log_and_print(f"❌ Failed to restart PC: {e}")
         sys.exit(1)
+
+def get_session_from_server():
+    """Get a session (cookies, user-agent) from the server once"""
+    try:
+        # Get session from server for one channel to establish the session
+        test_url = "https://www.seir-sanduk.com"
+        response = requests.get(f"http://localhost:8000/cookies?url={test_url}", timeout=30)
+        if response.status_code == 200:
+            session_data = response.json()
+            logger.info("✅ Session established with server")
+            return session_data
+    except Exception as e:
+        logger.error(f"❌ Failed to establish session: {e}")
+    
+    return None
 
 # --- Main Scraping Loop ---
 while True:
@@ -119,15 +121,26 @@ while True:
     start_time = time.time()
     logger.info("🚀 Starting new Mail sorting job")
 
-    # Get the dynamic pass
-    dynamic_pass = get_updated_pass()
-    if not dynamic_pass:
-        log_and_print("❌ Using default pass due to failure.")
-        dynamic_pass = "11kalAdKaAde11sF8F02020404020402"  # fallback
+    # Get the dynamic pass from the script (already updated by server5.py)
+    dynamic_pass = None
+    
+    # Read the password from the script file
+    with open(__file__, 'r') as f:
+        content = f.read()
+        # Look for any dynamic_pass assignment
+        pattern = r'dynamic_pass\s*=\s*"([^"]+)"'
+        matches = re.findall(pattern, content)
+        if matches:
+            dynamic_pass = matches[-1]
+            #logger.info(f"✅ Using pass from script: {dynamic_pass[:10]}...")
+        else:
+            # Ultimate fallback
+            dynamic_pass = "11kalAdKaAde11sF8F02020808020802"
+            logger.warning("⚠️ Using ultimate fallback pass")
 
     # Base URLs without pass
     base_urls = [
-	    # "https://www.gledaitv.live/watch-tv/50/film-box-online",
+        # "https://www.gledaitv.live/watch-tv/50/film-box-online",
         "https://www.seir-sanduk.com/?id=hd-bnt-1-hd",
         "https://www.seir-sanduk.com/?id=bnt-2",
         "https://www.seir-sanduk.com/?id=hd-bnt-3-hd",
@@ -160,6 +173,7 @@ while True:
         "https://www.seir-sanduk.com/?id=hd-eurosport-1-hd",
         "https://www.seir-sanduk.com/?id=hd-eurosport-2-hd",
         "https://www.seir-sanduk.com/?id=hd-discovery-channel-hd",
+        "https://www.seir-sanduk.com/?id=hd-id-xtra-hd",
         "https://www.seir-sanduk.com/?id=hd-nat-geo-hd",
         "https://www.seir-sanduk.com/?id=hd-nat-geo-wild-hd",
         "https://www.seir-sanduk.com/?id=tlc",
@@ -196,14 +210,18 @@ while True:
 
     all_successful = True
     
+    # Create a session for faster requests
+    session = requests.Session()
+    session.timeout = 15
+    
     with open(temp_file_path, 'w') as f:
         for url in urls:
             retries = 0
             success = False
 
-            while retries < 10 and not success:
+            while retries < 5 and not success:  # Reduced retries since we're using session
                 try:
-                    response = requests.get(f"http://localhost:8000/html?url={url}", timeout=30)
+                    response = session.get(f"http://localhost:8000/html?url={url}", timeout=20)
                     response.raise_for_status()
                     html = response.text
 
@@ -217,15 +235,15 @@ while True:
                     else:
                         logger.warning("❌ No Envelope found")
                         retries += 1
-                        time.sleep(1)
+                        time.sleep(0.5)  # Reduced sleep time
 
-                except requests.exceptions.RequestException:
-                    logger.error("⚠️ Error")
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"⚠️ Error: {str(e)[:50]}")
                     retries += 1
                     time.sleep(1)
 
             if not success:
-                logger.error("❌ Failed to get Envelope after 10 attempts")
+                logger.error("❌ Failed to get Envelope after 5 attempts")
                 all_successful = False
                 break  # Break out of the URL loop
 

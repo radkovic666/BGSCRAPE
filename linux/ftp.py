@@ -6,7 +6,7 @@ import requests
 source_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Linux Apache default web directory
-destination_dir = "/var/www/html"
+destination_dir = "/var/www/nyama.fun"
 
 # List of files to copy
 files_to_copy = ["playlist.m3u", "scrapelog.html"]
@@ -22,7 +22,7 @@ for file in files_to_copy:
     if os.path.exists(src_path):
         try:
             shutil.copy2(src_path, dest_path)
-            print(f"Delivered: {file} → {destination_dir}")
+            # print(f"Delivered: {file} → {destination_dir}")
         except PermissionError:
             print(f"Permission denied: Cannot copy {file} to {destination_dir}. Try running with sudo.")
     else:
@@ -39,7 +39,8 @@ try:
         if os.path.exists(playlist_path):
             try:
                 #os.remove(playlist_path)
-                print(f"Adopted: {playlist_path}")
+                # print(f"Adopted: {playlist_path}")
+                print(f"")
             except PermissionError:
                 print(f"Permission denied: Cannot delete {playlist_path}. Try running with sudo.")
     else:

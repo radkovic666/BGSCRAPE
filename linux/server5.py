@@ -145,8 +145,8 @@ async def get_cookies(url: str, retries: int = 5):
         driver.quit()
         return CookieResponse(cookies=cookies, user_agent=user_agent)
     except Exception as e:
-        print(f"500 Internal Server Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"500 Internal Server Error")
+        #raise HTTPException(status_code=500, detail=str(e))
 
 # Endpoint to get HTML content and cookies
 @app.get("/html")
@@ -179,14 +179,14 @@ async def get_html(url: str, retries: int = 5):
         return response
     except Exception as e:
         print(f"❌ Error processing {url}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        #raise HTTPException(status_code=500, detail=str(e))
 
 # Function to get updated password
 def get_updated_password():
     """Get the latest dynamic password from the source"""
     password_url = "https://www.seir-sanduk.com/linkzagledane.php?parola=FaeagaDs3AdKaAf9"
     
-    print(f"🔑 Fetching updated password from: {password_url}")
+    print(f"🔑 Fetching updated password")
     
     try:
         driver = bypass_cloudflare(password_url, retries=3)
@@ -253,7 +253,7 @@ def update_tezt5_password(new_password):
         with open(tezt5_script_path, 'w') as f:
             f.write(updated_content)
         
-        print(f"✅ Updated tezt5.py with new password: {new_password}")
+        print(f"✅ Updated tezt5.py with: {new_password}")
             
     except Exception as e:
         print(f"⚠️ Could not update tezt5.py: {e}")
